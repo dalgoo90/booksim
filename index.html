@@ -48,7 +48,7 @@ h1,h2,h3,p{margin-top:0}.title{font:26px Jua;margin:10px 0}.desc{color:var(--mut
 .point{color:#e25f79}
 .actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.action{padding:15px;border-radius:18px;background:#fff;text-align:left;border:1px solid var(--line);font-weight:700}.action small{display:block;color:var(--muted);font-weight:400;margin-top:3px}
 .nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(480px,100%);background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:8px 6px calc(8px + env(safe-area-inset-bottom));z-index:10}.nav button{background:none;color:#89938a;font-size:11px}.nav button.active{color:var(--green);font-weight:800}.nav span{display:block;font-size:22px;margin-bottom:2px}
-input,textarea,select{width:100%;padding:13px;border:1px solid #dce4d9;border-radius:13px;background:#fff;outline:none;font-size:16px}textarea{min-height:120px;resize:vertical}.field{margin:10px 0}.field label{display:block;font-size:12px;font-weight:700;margin:0 0 6px}.btn{width:100%;padding:14px;border-radius:14px;background:var(--green);color:#fff;font-weight:800}.btn.secondary{background:#eef5ed;color:#3e704d}.btn.pink{background:#f38b9d}.btn.yellow{background:#e9bd5e;color:#4b4024}
+input,textarea,select{width:100%;padding:13px;border:1px solid #dce4d9;border-radius:13px;background:#fff;outline:none;font-size:16px}textarea{min-height:120px;resize:vertical}.field{margin:10px 0}.field label{display:block;font-size:12px;font-weight:700;margin:0 0 6px}.btn{width:100%;padding:14px;border-radius:14px;background:var(--green);color:#fff;font-weight:800}.btn.secondary{background:#eef5ed;color:#3e704d}.btn.pink{background:#f38b9d}.btn.yellow{background:#e9bd5e;color:#4b4024}.btn:disabled{opacity:.5;cursor:not-allowed;filter:grayscale(.3)}
 .row{display:flex;gap:8px}.row>*{flex:1;min-width:0}input[type=date],input[type=month]{max-width:100%;font-size:14px;padding:11px}.field{min-width:0}.bookgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.book{background:#fff;border-radius:15px;overflow:hidden;border:1px solid var(--line)}.cover{width:100%;aspect-ratio:2/3;object-fit:cover;background:#edf1e9;display:flex;align-items:center;justify-content:center;font-size:28px}.cover img{width:100%;height:100%;object-fit:cover}.bookinfo{padding:8px}.booktitle{font-size:12px;font-weight:800;line-height:1.35}.author{font-size:10px;color:var(--muted);margin-top:3px}
 .quote{background:#f1f8ed;border-radius:18px;padding:16px;position:relative}.quote:before{content:'“';font:50px Georgia;color:#8bbd86;position:absolute;right:12px;top:-5px}.quote p{font-weight:700;line-height:1.7}.quote small{color:var(--muted)}
 .banner{padding:17px;border-radius:20px;margin:10px 0}.banner.pizza{background:#fff0eb}.banner.blue{background:#eaf4ff}.banner.cookie{background:#fff6df}.banner.pink{background:#fff0f4}
@@ -164,7 +164,7 @@ input,textarea,select{width:100%;padding:13px;border:1px solid #dce4d9;border-ra
     <p class="desc">책에서 발견한 문장을 모아보세요. <b>일주일에 2번</b> 참여할 수 있고, 참여할 때마다 책심 1개를 얻어요.</p>
     <div class="field"><label>책 제목 *</label><input id="qt"></div>
     <div class="field"><label>작가</label><input id="qa"></div>
-    <div class="field"><label>마음에 남은 문장 *</label><textarea id="qq" placeholder="공백 제외 10자 이상"></textarea></div>
+    <div class="field"><label>마음에 남은 문장 *</label><textarea id="qq" placeholder="책 속에서 마음에 남은 문장을 적어주세요"></textarea></div>
     <div class="field"><label>이 문장을 추천하는 이유</label><textarea id="qr"></textarea></div>
     <button class="btn" onclick="saveQuote()">문장 채집하기 💚</button>
   </div>
@@ -177,8 +177,12 @@ input,textarea,select{width:100%;padding:13px;border:1px solid #dce4d9;border-ra
   <div id="storyStatus" class="message"></div>
   <div class="card">
     <label style="font-weight:800;font-size:13px">① 받는 사람</label>
-    <div class="row"><div class="field"><label>반</label><input id="storyToClass" type="number" min="1"></div><div class="field"><label>번호</label><input id="storyToNumber" type="number" min="1"></div><div class="field"><label>이름</label><input id="storyToName"></div></div>
-    <label style="font-weight:800;font-size:13px;display:block;margin-top:12px">② 사연</label>
+    <div class="row"><div class="field"><label>학년</label><input id="storyToGrade" type="number" min="1" max="6"></div><div class="field"><label>반</label><input id="storyToClass" type="number" min="1"></div><div class="field"><label>번호</label><input id="storyToNumber" type="number" min="1"></div></div>
+    <div class="field"><label>이름</label><input id="storyToName"></div>
+    <label style="font-weight:800;font-size:13px;display:block;margin-top:12px">② 선물하고 싶은 책</label>
+    <div class="field"><label>책 제목</label><input id="storyBookTitle" placeholder="예: 아몬드"></div>
+    <div class="field"><label>작가</label><input id="storyBookAuthor" placeholder="예: 손원평"></div>
+    <label style="font-weight:800;font-size:13px;display:block;margin-top:12px">③ 사연</label>
     <div class="field"><textarea id="story" placeholder="누구에게 어떤 책을 선물하고 싶은지 마음을 담아 써 주세요. 공백 제외 30자 이상"></textarea></div>
     <button class="btn pink" onclick="saveStory()">사연 신청하기 💌</button>
   </div>
@@ -608,9 +612,11 @@ function saveQuote(){
  google.script.run.withSuccessHandler(r=>{if(!r.ok){alert(r.message);return}alert(r.message);data=r.dashboard;['qt','qa','qq','qr'].forEach(id=>document.getElementById(id).value='');renderQuotes()}).withFailureHandler(onFail).saveQuote(me.id,val('qt'),val('qa'),val('qq'),val('qr'));
 }
 function saveStory(){
- const toClass=val('storyToClass'),toNumber=val('storyToNumber'),toName=val('storyToName');
- if(!toClass||!toNumber||!toName){alert('받는 사람의 반·번호·이름을 모두 입력해 주세요.');return}
- google.script.run.withSuccessHandler(r=>{if(!r.ok){alert(r.message);return}alert(r.message);data=r.dashboard;['storyToClass','storyToNumber','storyToName','story'].forEach(id=>document.getElementById(id).value='');renderStory()}).withFailureHandler(onFail).saveStory(me.id,toClass,toNumber,toName,val('story'));
+ const toGrade=val('storyToGrade'),toClass=val('storyToClass'),toNumber=val('storyToNumber'),toName=val('storyToName');
+ const bookTitle=val('storyBookTitle'),bookAuthor=val('storyBookAuthor');
+ if(!toGrade||!toClass||!toNumber||!toName){alert('받는 사람의 학년·반·번호·이름을 모두 입력해 주세요.');return}
+ if(!bookTitle||!bookAuthor){alert('선물하고 싶은 책 제목과 작가를 입력해 주세요.');return}
+ google.script.run.withSuccessHandler(r=>{if(!r.ok){alert(r.message);return}alert(r.message);data=r.dashboard;['storyToGrade','storyToClass','storyToNumber','storyToName','storyBookTitle','storyBookAuthor','story'].forEach(id=>document.getElementById(id).value='');renderStory()}).withFailureHandler(onFail).saveStory(me.id,toGrade,toClass,toNumber,toName,bookTitle,bookAuthor,val('story'));
 }
 function renderStory(){
  const s=data.activityStatus.story;document.getElementById('storyStatus').innerHTML=s.canSubmit?'이번 달 참여 기회가 남아 있어요. 💌':'이번 달 참여를 완료했어요. 다음 달에 다시 만나요!';

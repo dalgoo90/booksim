@@ -183,7 +183,7 @@ input,textarea,select{width:100%;padding:13px;border:1px solid #dce4d9;border-ra
     <div class="field"><label>책 제목</label><input id="storyBookTitle" placeholder="예: 아몬드"></div>
     <div class="field"><label>작가</label><input id="storyBookAuthor" placeholder="예: 손원평"></div>
     <label style="font-weight:800;font-size:13px;display:block;margin-top:12px">③ 사연</label>
-    <div class="field"><textarea id="story" placeholder="누구에게 어떤 책을 선물하고 싶은지 마음을 담아 써 주세요. 공백 제외 30자 이상"></textarea></div>
+    <div class="field"><textarea id="storyText" placeholder="누구에게 어떤 책을 선물하고 싶은지 마음을 담아 써 주세요. 공백 제외 30자 이상"></textarea></div>
     <button class="btn pink" onclick="saveStory()">사연 신청하기 💌</button>
   </div>
 </section>
@@ -616,7 +616,7 @@ function saveStory(){
  const bookTitle=val('storyBookTitle'),bookAuthor=val('storyBookAuthor');
  if(!toGrade||!toClass||!toNumber||!toName){alert('받는 사람의 학년·반·번호·이름을 모두 입력해 주세요.');return}
  if(!bookTitle||!bookAuthor){alert('선물하고 싶은 책 제목과 작가를 입력해 주세요.');return}
- google.script.run.withSuccessHandler(r=>{if(!r.ok){alert(r.message);return}alert(r.message);data=r.dashboard;['storyToGrade','storyToClass','storyToNumber','storyToName','storyBookTitle','storyBookAuthor','story'].forEach(id=>document.getElementById(id).value='');renderStory()}).withFailureHandler(onFail).saveStory(me.id,toGrade,toClass,toNumber,toName,bookTitle,bookAuthor,val('story'));
+ google.script.run.withSuccessHandler(r=>{if(!r.ok){alert(r.message);return}alert(r.message);data=r.dashboard;['storyToGrade','storyToClass','storyToNumber','storyToName','storyBookTitle','storyBookAuthor','storyText'].forEach(id=>document.getElementById(id).value='');renderStory()}).withFailureHandler(onFail).saveStory(me.id,toGrade,toClass,toNumber,toName,bookTitle,bookAuthor,val('storyText'));
 }
 function renderStory(){
  const s=data.activityStatus.story;document.getElementById('storyStatus').innerHTML=s.canSubmit?'이번 달 참여 기회가 남아 있어요. 💌':'이번 달 참여를 완료했어요. 다음 달에 다시 만나요!';

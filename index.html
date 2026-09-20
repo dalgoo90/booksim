@@ -502,11 +502,11 @@ function renderClassForest(){
       el.innerHTML=list.map(function(x){
         const mine=String(x.name)===String(me.name) && String(x.num)===String(me.num);
         const img=stageImg_(x.stageTitle);
-        const treeVisual=img?'<img class="forest-tree-img" src="'+img+'" alt="'+escapeHtml(x.stageTitle||'')+'" onerror="this.style.display=\'none\'">':'<div class="forest-tree">'+escapeHtml(x.tree)+'</div>';
+        const treeVisual=img?'<img class="forest-tree-img" src="'+img+'" alt="'+esc(x.stageTitle||'')+'" onerror="this.style.display=\'none\'">':'<div class="forest-tree">'+esc(x.tree)+'</div>';
         return '<div class="forest-card"'+(mine?' style="box-shadow:0 0 0 2px #55a36c inset;"':'')+'>'+
           treeVisual+
-          '<div class="forest-num">'+escapeHtml(String(x.num))+'번</div>'+
-          '<div class="forest-name">'+escapeHtml(x.treeName||x.name+'의 책나무')+'</div>'+
+          '<div class="forest-num">'+esc(String(x.num))+'번</div>'+
+          '<div class="forest-name">'+esc(x.treeName||x.name+'의 책나무')+'</div>'+
           '<div class="forest-books">📚 '+String(x.books)+'권 · 💗 '+String(x.point)+'</div>'+
         '</div>';
       }).join('');

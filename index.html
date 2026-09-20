@@ -41,10 +41,9 @@ h1,h2,h3,p{margin-top:0}.title{font:26px Jua;margin:10px 0}.desc{color:var(--mut
 .hero{background:linear-gradient(180deg,#dff4df,#fff9ed);border-radius:28px;padding:20px 16px;text-align:center;min-height:360px;position:relative;overflow:hidden}
 .hero:after{content:'✦  ❀  ✿  ✦';position:absolute;bottom:8px;left:0;right:0;color:#b9d6ad;letter-spacing:20px}
 .hello{text-align:left}.hello strong{font-size:20px}
-.tree{font-size:125px;line-height:1;margin:28px 0 8px;filter:drop-shadow(0 7px 5px #00000012);animation:bob 3s ease-in-out infinite}
-.tree.seed{font-size:58px;margin:78px 0 -20px;position:relative;z-index:2;animation:none;filter:drop-shadow(0 3px 3px #00000020)}
+.tree-img{width:172px;height:172px;object-fit:contain;margin:22px auto 6px;display:block;filter:drop-shadow(0 8px 8px #00000018);animation:bob 3s ease-in-out infinite}
 @keyframes bob{50%{transform:translateY(-4px)}}
-.pot{margin:10px auto 0;width:64px;height:38px;background:#d99363;border-radius:0 0 14px 14px;position:relative;border-top:6px solid #b96f49;box-shadow:0 5px 7px #00000012}.pot:before{content:'';position:absolute;left:-5px;right:-5px;top:-9px;height:8px;background:#c17a50;border-radius:8px}.pot.book{background:#7aa8d8;border-top-color:#5c86b6}.pot.basket{background:#c9a46a;border-top-color:#a5814c}.pot.ceramic{background:#cfcfcf;border-top-color:#a9a9a9}.pot.soil-pot{margin-top:-8px}.pot.soil-pot:before{background:#5c4128}.soil-mound{width:56px;height:16px;background:radial-gradient(ellipse at 50% 30%,#6b4c30,#4f371f);border-radius:50%;margin:-11px auto 0;position:relative;z-index:1;box-shadow:inset 0 2px 3px #00000030}.remember-login{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin:-4px 0 14px}.remember-login input{width:auto}.tree-name{font:20px Jua;margin-top:4px}
+.remember-login{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin:-4px 0 14px}.remember-login input{width:auto}.tree-name{font:20px Jua;margin-top:4px}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px}.stat{background:#ffffffcc;border-radius:15px;padding:11px 4px}.stat b{display:block;font-size:20px}.stat span{font-size:11px;color:var(--muted)}
 .point{color:#e25f79}
 .actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.action{padding:15px;border-radius:18px;background:#fff;text-align:left;border:1px solid var(--line);font-weight:700}.action small{display:block;color:var(--muted);font-weight:400;margin-top:3px}
@@ -55,7 +54,7 @@ input,textarea,select{width:100%;padding:13px;border:1px solid #dce4d9;border-ra
 .banner{padding:17px;border-radius:20px;margin:10px 0}.banner.pizza{background:#fff0eb}.banner.blue{background:#eaf4ff}.banner.cookie{background:#fff6df}.banner.pink{background:#fff0f4}
 .tag{display:inline-block;background:#eef5ed;border-radius:20px;padding:5px 9px;font-size:10px;color:#4c7c57;margin:3px}
 .treechoices{display:grid;grid-template-columns:1fr 1fr;gap:10px}.choice{border:2px solid var(--line);border-radius:18px;padding:15px;text-align:center;background:white}.choice.selected{border-color:var(--green);background:#eff8ed}.choice .big{font-size:52px}.choice b{display:block}
-.message{padding:12px;border-radius:12px;background:#f2f6ef;margin:10px 0;font-size:13px}.activity-section{margin-top:18px}.activity-section h3{font:18px Jua;margin:0 0 8px}.activity-badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:10px;font-weight:800;background:#eef5ed;color:#4f7b59;margin-bottom:8px}.activity-empty{padding:16px;border-radius:16px;background:#f8faf6;color:#89938a;font-size:12px}.activity-card{margin:8px 0}.activity-date{font-size:10px;color:#8b958c;margin-top:6px}.forest-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}.forest-card{background:#f7fbf5;border:1px solid var(--line);border-radius:16px;padding:10px;text-align:center}.forest-tree{font-size:40px;line-height:1.1}.forest-num{font-size:10px;color:var(--muted)}.forest-name{font-weight:800;font-size:12px;margin-top:3px}.forest-books{font-size:10px;color:var(--green);margin-top:2px}.forest-empty{grid-column:1/-1}
+.message{padding:12px;border-radius:12px;background:#f2f6ef;margin:10px 0;font-size:13px}.activity-section{margin-top:18px}.activity-section h3{font:18px Jua;margin:0 0 8px}.activity-badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:10px;font-weight:800;background:#eef5ed;color:#4f7b59;margin-bottom:8px}.activity-empty{padding:16px;border-radius:16px;background:#f8faf6;color:#89938a;font-size:12px}.activity-card{margin:8px 0}.activity-date{font-size:10px;color:#8b958c;margin-top:6px}.forest-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}.forest-card{background:#f7fbf5;border:1px solid var(--line);border-radius:16px;padding:10px;text-align:center}.forest-tree{font-size:40px;line-height:1.1}.forest-tree-img{width:54px;height:54px;object-fit:contain;margin:0 auto}.forest-num{font-size:10px;color:var(--muted)}.forest-name{font-weight:800;font-size:12px;margin-top:3px}.forest-books{font-size:10px;color:var(--green);margin-top:2px}.forest-empty{grid-column:1/-1}
 .loading{text-align:center;padding:50px;color:var(--muted)}
 .hide{display:none!important}.right{text-align:right}.sectionhead{display:flex;justify-content:space-between;align-items:center;margin-top:20px}.sectionhead h2{font:20px Jua;margin:0}.link{color:var(--green);font-size:12px;font-weight:700}
 .adminbox{background:#f5f7f2;border-radius:16px;padding:12px;overflow:auto}.adminbox table{width:100%;border-collapse:collapse;font-size:11px}.adminbox th,.adminbox td{padding:8px;border-bottom:1px solid #dde5d9;text-align:left;white-space:nowrap}.adminbox th{position:sticky;top:0;background:#f5f7f2;z-index:1}
@@ -102,6 +101,7 @@ input,textarea,select{width:100%;padding:13px;border:1px solid #dce4d9;border-ra
   .forest-grid{gap:7px}
   .forest-card{padding:10px 6px}
   .forest-tree{font-size:42px}
+  .forest-tree-img{width:46px;height:46px}
   .forest-num{font-size:11px}
   .forest-name{font-size:13px}
   .forest-books{font-size:11px}
@@ -305,6 +305,8 @@ if(API_URL.indexOf('PUT_YOUR_APPS_SCRIPT_EXEC_URL_HERE') >= 0){
 let me=null, data=null, adminCode='';
 let screenHistory=[];
 const trees=[['green','🌳','단풍나무'],['flower','🌸','벚나무'],['fruit','🍎','사과나무'],['forest','🌲','소나무']];
+const STAGE_IMAGES={'씨앗':'trees/tree-1.png','새싹':'trees/tree-2.png','어린 나무':'trees/tree-3.png','책나무':'trees/tree-4.png','꽃나무':'trees/tree-5.png','열매나무':'trees/tree-6.png','나만의 책숲':'trees/tree-7.png'};
+function stageImg_(title){return STAGE_IMAGES[title]||'';}
 const pots=[['basic','🪴','기본 화분'],['basket','🧺','바구니'],['ceramic','🏺','도자기 화분'],['book','📚','책 화분']];
 function show(id, addHistory=true){
  const current = document.querySelector('.screen.active');
@@ -375,11 +377,10 @@ function afterLogin(){
 }
 function renderHome(){
  const st=data.stage;
- const isSeed=st.title==='씨앗';
  document.getElementById('homeContent').innerHTML=`
  <div class="hello" style="margin:10px 2px"><div class="desc">오늘도 책과 함께 자라요 🌱</div><strong>${esc(me.name)}님, 안녕!</strong></div>
  <div class="hero">
-   <div class="tree${isSeed?' seed':''}">${st.emoji}</div>${isSeed?'<div class="soil-mound"></div>':''}<div class="pot${isSeed?' soil-pot':''}"></div>
+   <img class="tree-img" src="${stageImg_(st.title)}" alt="${esc(st.title)}" onerror="this.style.display='none'">
    <div class="tree-name">${esc(me.treeName||'나의 책나무')}</div>
    <div class="tag">${st.title}</div>
    <div class="stats"><div class="stat"><b class="point">💗 ${data.point}</b><span>책심</span></div><div class="stat"><b>📚 ${data.bookCount}</b><span>읽은 책</span></div><div class="stat"><b>🌿 ${data.quoteCount}</b><span>채집 문장</span></div></div>
@@ -410,8 +411,10 @@ function renderClassForest(){
       }
       el.innerHTML=list.map(function(x){
         const mine=String(x.name)===String(me.name) && String(x.num)===String(me.num);
+        const img=stageImg_(x.stageTitle);
+        const treeVisual=img?'<img class="forest-tree-img" src="'+img+'" alt="'+escapeHtml(x.stageTitle||'')+'" onerror="this.style.display=\'none\'">':'<div class="forest-tree">'+escapeHtml(x.tree)+'</div>';
         return '<div class="forest-card"'+(mine?' style="box-shadow:0 0 0 2px #55a36c inset;"':'')+'>'+
-          '<div class="forest-tree">'+escapeHtml(x.tree)+'</div>'+
+          treeVisual+
           '<div class="forest-num">'+escapeHtml(String(x.num))+'번</div>'+
           '<div class="forest-name">'+escapeHtml(x.treeName||x.name+'의 책나무')+'</div>'+
           '<div class="forest-books">📚 '+String(x.books)+'권 · 💗 '+String(x.point)+'</div>'+

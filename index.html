@@ -20,7 +20,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0}
 .app{max-width:480px;margin:auto;min-height:100vh;min-height:100dvh;background:var(--cream);box-shadow:0 0 30px #00000010;display:flex;flex-direction:column}
 #inappBanner{display:none;position:sticky;top:0;z-index:20;background:#fff3cd;border-bottom:1px solid #f0d98c;color:#5a4a1a;font-size:12.5px;line-height:1.5;padding:10px 14px;text-align:center}
 #inappBanner b{color:#7a5c00}
-header{padding:18px 20px 12px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fffaf0ee;backdrop-filter:blur(10px);z-index:5}
+header{padding:calc(18px + env(safe-area-inset-top)) 20px 12px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fffaf0ee;backdrop-filter:blur(10px);z-index:5}
 .logo{font:32px Jua;color:#356b47}.sub{font-size:11px;color:#849084}
 .iconbtn{background:white;border:1px solid var(--line);border-radius:50%;width:38px;height:38px}
 main{padding:0 16px 92px;flex:1;display:flex;flex-direction:column}
@@ -61,7 +61,7 @@ input,textarea,select{width:100%;padding:13px;border:1px solid #dce4d9;border-ra
 @media(max-width:520px){
   body{font-size:15px;background:var(--cream)}
   .app{width:100%;max-width:none;min-height:100svh;box-shadow:none}
-  header{padding:15px 16px 10px}
+  header{padding:calc(15px + env(safe-area-inset-top)) 16px 10px}
   .logo{font-size:29px}
   .sub{font-size:12px}
   main{padding:0 14px calc(94px + env(safe-area-inset-bottom))}
@@ -488,12 +488,15 @@ function saveTree(){
  google.script.run.withSuccessHandler(r=>{if(!r.ok){alert(r.message);return}data=r.dashboard;me=data.me;show('home')}).withFailureHandler(onFail).saveTree(me.id,pickedTree,pickedPot,name);
 }
 function waterTree(){
- const key='booksim-water-'+me.grade+'-'+me.cls+'-'+me.num;
- localStorage.setItem(key,new Date().toDateString());checkWater();
+ const b=document.getElementById('waterBtn');
+ if(b)b.disabled=true;
+ google.script.run.withSuccessHandler(r=>{
+  if(!r.ok){ if(b)b.disabled=r.alreadyWatered?true:false; alert(r.message); if(r.alreadyWatered){data.wateredToday=true;checkWater();} return; }
+  data.wateredToday=true;checkWater();
+ }).withFailureHandler(e=>{if(b)b.disabled=false;onFail(e);}).waterTree(me.id);
 }
 function checkWater(){
- const key='booksim-water-'+me.grade+'-'+me.cls+'-'+me.num;
- const done=localStorage.getItem(key)===new Date().toDateString();
+ const done=!!(data&&data.wateredToday);
  const b=document.getElementById('waterBtn'),m=document.getElementById('waterMsg');
  if(!b)return;
  b.disabled=done;b.textContent=done?'오늘은 물을 줬어요 💚':'물 주기 💧';m.textContent=done?'나무가 촉촉하게 잘 자라고 있어요!':'나무가 물을 기다리고 있어요!';

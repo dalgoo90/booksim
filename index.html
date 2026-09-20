@@ -187,9 +187,27 @@ input,textarea,select{width:100%;padding:13px;border:1px solid #dce4d9;border-ra
   <div id="recList"></div>
 </section>
 
+<section id="activityHub" class="screen">
+  <h1 class="title">🌿 참여 활동</h1>
+  <p class="desc">둘 중 하나를 골라 참여해 보세요.</p>
+  <div class="actions" style="grid-template-columns:1fr">
+   <button class="action" onclick="show('quote')">🌿 명문장 채집가<small>주 2회 · 책심 1</small></button>
+   <button class="action" onclick="show('story')">💌 책은 사연을 싣고<small>월 1회 · 책심 1</small></button>
+  </div>
+</section>
+
+<section id="moreHub" class="screen">
+  <h1 class="title">✨ 더보기</h1>
+  <p class="desc">추천 도서와 학교 행사를 확인해 보세요.</p>
+  <div class="actions" style="grid-template-columns:1fr">
+   <button class="action" onclick="show('recommend')">🌟 이달의 추천 책<small>선생님 추천</small></button>
+   <button class="action" onclick="show('events')">🎉 학교 행사<small>지금 진행 중인 행사부터 앞으로 만날 행사까지</small></button>
+  </div>
+</section>
+
 <section id="events" class="screen">
-  <h1 class="title">🎉 책심 활동</h1>
-  <p class="desc">지금 진행 중인 활동부터 앞으로 만날 활동까지 한눈에 볼 수 있어요.</p>
+  <h1 class="title">🎉 학교 행사</h1>
+  <p class="desc">지금 진행 중인 행사부터 앞으로 만날 행사까지 한눈에 볼 수 있어요.</p>
   <div id="eventList"></div>
 </section>
 
@@ -233,8 +251,8 @@ input,textarea,select{width:100%;padding:13px;border:1px solid #dce4d9;border-ra
 <div id="nav" class="nav hide">
  <button id="nHome" onclick="show('home')"><span>🌳</span>홈</button>
  <button id="nBooks" onclick="show('books')"><span>📚</span>기록</button>
- <button id="nQuote" onclick="show('quote')"><span>🌿</span>활동</button>
- <button id="nMore" onclick="show('events')"><span>✨</span>더보기</button>
+ <button id="nQuote" onclick="show('activityHub')"><span>🌿</span>활동</button>
+ <button id="nMore" onclick="show('moreHub')"><span>✨</span>더보기</button>
 </div>
 </div>
 
@@ -305,7 +323,7 @@ function showScreen(id){
  document.getElementById(id).classList.add('active');
  if(me) document.getElementById('nav').classList.remove('hide'); else document.getElementById('nav').classList.add('hide');
  document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));
- const map={home:'nHome',books:'nBooks',quote:'nQuote',story:'nQuote',recommend:'nMore',events:'nMore',addBook:'nBooks',setup:'nHome'};
+ const map={home:'nHome',books:'nBooks',quote:'nQuote',story:'nQuote',activityHub:'nQuote',recommend:'nMore',events:'nMore',moreHub:'nMore',addBook:'nBooks',setup:'nHome'};
  if(map[id]) document.getElementById(map[id]).classList.add('active');
  if(id==='home'&&data) renderHome();
  if(id==='books'&&data) renderBooks();

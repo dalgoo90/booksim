@@ -49,7 +49,7 @@ h1,h2,h3,p{margin-top:0}.title{font:26px Jua;margin:10px 0}.desc{color:var(--mut
 .actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.action{padding:15px;border-radius:18px;background:#fff;text-align:left;border:1px solid var(--line);font-weight:700}.action small{display:block;color:var(--muted);font-weight:400;margin-top:3px}
 .nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(480px,100%);background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:8px 6px calc(8px + env(safe-area-inset-bottom));z-index:10}.nav button{background:none;color:#89938a;font-size:11px}.nav button.active{color:var(--green);font-weight:800}.nav span{display:block;font-size:22px;margin-bottom:2px}
 input,textarea,select{width:100%;padding:13px;border:1px solid #dce4d9;border-radius:13px;background:#fff;outline:none;font-size:16px}textarea{min-height:120px;resize:vertical}.field{margin:10px 0}.field label{display:block;font-size:12px;font-weight:700;margin:0 0 6px}.btn{width:100%;padding:14px;border-radius:14px;background:var(--green);color:#fff;font-weight:800}.btn.secondary{background:#eef5ed;color:#3e704d}.btn.pink{background:#f38b9d}.btn.yellow{background:#e9bd5e;color:#4b4024}
-.row{display:flex;gap:8px}.row>*{flex:1;min-width:0}input[type=date],input[type=month]{max-width:100%}.field{min-width:0}.bookgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.book{background:#fff;border-radius:15px;overflow:hidden;border:1px solid var(--line)}.cover{width:100%;aspect-ratio:2/3;object-fit:cover;background:#edf1e9;display:flex;align-items:center;justify-content:center;font-size:28px}.cover img{width:100%;height:100%;object-fit:cover}.bookinfo{padding:8px}.booktitle{font-size:12px;font-weight:800;line-height:1.35}.author{font-size:10px;color:var(--muted);margin-top:3px}
+.row{display:flex;gap:8px}.row>*{flex:1;min-width:0}input[type=date],input[type=month]{max-width:100%;font-size:14px;padding:11px}.field{min-width:0}.bookgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.book{background:#fff;border-radius:15px;overflow:hidden;border:1px solid var(--line)}.cover{width:100%;aspect-ratio:2/3;object-fit:cover;background:#edf1e9;display:flex;align-items:center;justify-content:center;font-size:28px}.cover img{width:100%;height:100%;object-fit:cover}.bookinfo{padding:8px}.booktitle{font-size:12px;font-weight:800;line-height:1.35}.author{font-size:10px;color:var(--muted);margin-top:3px}
 .quote{background:#f1f8ed;border-radius:18px;padding:16px;position:relative}.quote:before{content:'“';font:50px Georgia;color:#8bbd86;position:absolute;right:12px;top:-5px}.quote p{font-weight:700;line-height:1.7}.quote small{color:var(--muted)}
 .banner{padding:17px;border-radius:20px;margin:10px 0}.banner.pizza{background:#fff0eb}.banner.blue{background:#eaf4ff}.banner.cookie{background:#fff6df}.banner.pink{background:#fff0f4}
 .tag{display:inline-block;background:#eef5ed;border-radius:20px;padding:5px 9px;font-size:10px;color:#4c7c57;margin:3px}
@@ -148,7 +148,7 @@ input,textarea,select{width:100%;padding:13px;border:1px solid #dce4d9;border-ra
   <div class="card">
     <div class="field"><label>책 제목 *</label><input id="bt" placeholder="예: 아몬드"></div>
     <div class="field"><label>작가 *</label><input id="ba" placeholder="예: 손원평"></div>
-    <div class="field"><label>읽은 날짜</label><input id="bd" type="date"></div>
+    <div class="field" style="overflow:hidden"><label>읽은 날짜</label><input id="bd" type="date"></div>
     <div class="field"><label>한 줄 감상 * <span id="reviewCount">0자</span></label><textarea id="br" oninput="countReview()" placeholder="공백 제외 30자 이상으로 기록해 주세요."></textarea></div>
     <button class="btn" onclick="saveBook()">독서 기록 저장 🌱</button>
     <button class="btn secondary" style="margin-top:8px" onclick="show('books')">돌아가기</button>
@@ -470,8 +470,8 @@ function renderBooks(){
     <div class="author">📅 ${esc(b.readDate||'')}</div>
     <p style="font-size:11px;line-height:1.5;margin:7px 0;color:#556158">${esc(b.review||'')}</p>
     <div style="display:flex;gap:5px">
-      <button class="btn secondary" style="padding:7px;font-size:11px" onclick="editBook('${esc(b.recordId)}')">✏️ 수정</button>
-      <button class="btn" style="padding:7px;font-size:11px;background:#f3eeee;color:#9a5555" onclick="removeBook('${esc(b.recordId)}')">🗑️</button>
+      <button class="btn secondary" style="padding:7px 4px;font-size:11px;white-space:nowrap" onclick="editBook('${esc(b.recordId)}')">✏️수정</button>
+      <button class="btn" style="padding:7px 4px;font-size:11px;white-space:nowrap;background:#f3eeee;color:#9a5555" onclick="removeBook('${esc(b.recordId)}')">🗑️</button>
     </div>
    </div>
   </div>`).join('');
@@ -532,7 +532,13 @@ function renderStory(){
  document.querySelector('#story .btn').disabled=!s.canSubmit;
 }
 function renderRecs(){
- document.getElementById('recList').innerHTML=data.recommendations.length?data.recommendations.map(x=>`<div class="card"><div class="row"><img class="cover" style="width:85px;flex:none" src="${x.표지URL||'https://via.placeholder.com/100x150?text=BOOK'}"><div><b>${esc(x.책제목)}</b><div class="author">${esc(x.작가)}</div><p style="font-size:12px;margin-top:10px">${esc(x.추천이유||'')}</p><span class="tag">👩‍🏫 ${esc(x.추천교사||'선생님')}</span><span class="tag">${esc(x.교과||'')}</span>${x.추천월?`<span class="tag">📅 ${esc(x.추천월)}</span>`:''}</div></div></div>`).join(''):'<div class="card">아직 등록된 추천도서가 없어요.</div>';
+ document.getElementById('recList').innerHTML=data.recommendations.length?data.recommendations.map(x=>{
+  const coverBox=`<div style="width:85px;height:127px;flex:none;border-radius:12px;overflow:hidden;background:#edf1e9;position:relative">
+    <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:30px">📕</span>
+    ${x.표지URL?`<img src="${esc(x.표지URL)}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" onerror="this.remove()">`:''}
+  </div>`;
+  return `<div class="card"><div class="row">${coverBox}<div><b>${esc(x.책제목)}</b><div class="author">${esc(x.작가)}</div><p style="font-size:12px;margin-top:10px">${esc(x.추천이유||'')}</p><span class="tag">👩‍🏫 ${esc(x.추천교사||'선생님')}</span><span class="tag">${esc(x.교과||'')}</span>${x.추천월?`<span class="tag">📅 ${esc(x.추천월)}</span>`:''}</div></div></div>`;
+ }).join(''):'<div class="card">아직 등록된 추천도서가 없어요.</div>';
 }
 function pizzaRowHtml_(c){
  const mine=me && String(c.학년)===String(me.grade) && String(c.반)===String(me.cls);

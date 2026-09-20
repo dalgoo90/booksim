@@ -19,15 +19,15 @@ main{padding:0 16px 92px;flex:1;display:flex;flex-direction:column}
 .screen{display:none}
 .screen.active{display:flex;flex-direction:column;flex:1;min-height:0}
 #login.screen.active,#setupPassword.screen.active{justify-content:center}
-#login .card,#setupPassword .card{padding:38px 24px;width:100%}
-#login .card .field,#setupPassword .card .field{margin:20px 0}
-#login .card input,#setupPassword .card input{padding:18px;font-size:18px;min-height:58px}
-#login .card .btn,#setupPassword .card .btn{padding:20px;font-size:20px;min-height:62px;margin-top:8px}
-#login .card .btn.secondary{margin-top:12px}
-#login .card .field label,#setupPassword .card .field label{font-size:16px;margin-bottom:8px}
-#login .card .remember-login{font-size:15px;margin:2px 0 18px;gap:10px}
-#login .card .remember-login input{width:20px;height:20px}
-#login .card .desc{font-size:14.5px}
+#login .card,#setupPassword .card{padding:26px 22px;width:100%}
+#login .card .field,#setupPassword .card .field{margin:14px 0}
+#login .card input,#setupPassword .card input{padding:13px;font-size:16px;min-height:46px}
+#login .card .btn,#setupPassword .card .btn{padding:14px;font-size:17px;min-height:48px;margin-top:6px}
+#login .card .btn.secondary{margin-top:10px}
+#login .card .field label,#setupPassword .card .field label{font-size:14px;margin-bottom:6px}
+#login .card .remember-login{font-size:14px;margin:2px 0 14px;gap:8px}
+#login .card .remember-login input{width:18px;height:18px}
+#login .card .desc{font-size:13.5px}
 h1,h2,h3,p{margin-top:0}.title{font:26px Jua;margin:10px 0}.desc{color:var(--muted);font-size:13px}
 .card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:16px;margin:12px 0;box-shadow:0 5px 15px #00000005}
 .hero{background:linear-gradient(180deg,#dff4df,#fff9ed);border-radius:28px;padding:20px 16px;text-align:center;min-height:360px;position:relative;overflow:hidden}
@@ -111,9 +111,9 @@ input,textarea,select{width:100%;padding:13px;border:1px solid #dce4d9;border-ra
 <main>
 <section id="login" class="screen active">
   <div class="card">
-    <div style="font-size:104px;text-align:center;margin-bottom:6px">🌱</div>
-    <h1 style="text-align:center;font:48px Jua;margin-bottom:12px">책심에 들어와요!</h1>
-    <p class="desc" style="text-align:center;font-size:16.5px;margin-bottom:10px">학년·반·번호·이름으로 나의 책나무를 찾아보세요.</p>
+    <div style="font-size:64px;text-align:center;margin-bottom:4px">🌱</div>
+    <h1 style="text-align:center;font:32px Jua;margin-bottom:8px">책심에 들어와요!</h1>
+    <p class="desc" style="text-align:center;margin-bottom:8px">학년·반·번호·이름으로 나의 책나무를 찾아보세요.</p>
     <div class="row"><div class="field"><label>학년</label><input id="lg" type="number" min="1" max="3"></div><div class="field"><label>반</label><input id="lc" type="number"></div><div class="field"><label>번호</label><input id="ln" type="number"></div></div>
     <div class="field"><label>이름</label><input id="lname"></div>
     <div class="field" id="pwField"><label>비밀번호</label><input id="lpw" type="password" placeholder="설정한 비밀번호"></div>

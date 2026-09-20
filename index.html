@@ -223,13 +223,9 @@ input,textarea,select{width:100%;padding:13px;border:1px solid #dce4d9;border-ra
 
 <section id="setup" class="screen">
   <h1 class="title">🌱 나의 책나무 만들기</h1>
-  <p class="desc">처음 한 번만 나만의 나무를 골라주세요.</p>
+  <p class="desc">처음 한 번만 나만의 나무 이름을 지어주세요. 나무는 책심을 모을수록 저절로 자라나요.</p>
   <div class="card">
-    <label style="font-weight:800;font-size:13px">① 나무를 골라요</label>
-    <div class="treechoices" id="treeChoices"></div>
-    <label style="font-weight:800;font-size:13px;display:block;margin-top:18px">② 화분을 골라요</label>
-    <div class="treechoices" id="potChoices"></div>
-    <div class="field"><label>③ 나무 이름</label><input id="treeName" maxlength="12" placeholder="예: 지은이의 책나무"></div>
+    <div class="field"><label>나무 이름</label><input id="treeName" maxlength="12" placeholder="예: 지은이의 책나무"></div>
     <button class="btn" onclick="saveTree()">나무 심기 🌳</button>
   </div>
 </section>
@@ -377,13 +373,13 @@ function afterLogin(){
  show('home');
 }
 function renderHome(){
- const st=data.stage, treeEmoji=me.treeType==='flower'?'🌸':me.treeType==='fruit'?'🍎':me.treeType==='forest'?'🌲':'🌳'; const potClass=me.potType==='책 화분'?'book':me.potType==='바구니'?'basket':me.potType==='도자기'?'ceramic':'';
+ const st=data.stage;
  document.getElementById('homeContent').innerHTML=`
  <div class="hello" style="margin:10px 2px"><div class="desc">오늘도 책과 함께 자라요 🌱</div><strong>${esc(me.name)}님, 안녕!</strong></div>
  <div class="hero">
-   <div class="tree">${treeEmoji}</div><div class="pot ${potClass}"></div>
+   <div class="tree">${st.emoji}</div><div class="pot"></div>
    <div class="tree-name">${esc(me.treeName||'나의 책나무')}</div>
-   <div class="tag">${st.emoji} ${st.title}</div>
+   <div class="tag">${st.title}</div>
    <div class="stats"><div class="stat"><b class="point">💗 ${data.point}</b><span>책심</span></div><div class="stat"><b>📚 ${data.bookCount}</b><span>읽은 책</span></div><div class="stat"><b>🌿 ${data.quoteCount}</b><span>채집 문장</span></div></div>
  </div>
  <div class="card"><div style="font-weight:800">💧 오늘은 물을 줬나요?</div><p class="desc" id="waterMsg" style="margin:5px 0 10px">나무가 물을 기다리고 있어요!</p><button class="btn secondary" id="waterBtn" onclick="waterTree()">물 주기 💧</button></div>
@@ -438,11 +434,9 @@ function tryAutoLogin(){
 }
 
 function renderTreeSetup(){
- document.getElementById('treeChoices').innerHTML=trees.map((x,i)=>`<button class="choice" data-type="${x[0]}" onclick="pick('tree',this)"><div class="big">${x[1]}</div><b>${x[2]}</b></button>`).join('');
- document.getElementById('potChoices').innerHTML=pots.map(x=>`<button class="choice" data-type="${x[0]}" onclick="pick('pot',this)"><div class="big">${x[1]}</div><b>${x[2]}</b></button>`).join('');
+ /* 나무·화분 종류는 더 이상 고르지 않고, 책심에 따라 자동으로 자라나요. */
 }
 let pickedTree='green',pickedPot='basic';
-function pick(kind,el){el.parentElement.querySelectorAll('.choice').forEach(x=>x.classList.remove('selected'));el.classList.add('selected');if(kind==='tree')pickedTree=el.dataset.type;else pickedPot=el.dataset.type}
 function saveTree(){
  const name=val('treeName')||`${me.name}의 책나무`;
  google.script.run.withSuccessHandler(r=>{if(!r.ok){alert(r.message);return}data=r.dashboard;me=data.me;show('home')}).withFailureHandler(onFail).saveTree(me.id,pickedTree,pickedPot,name);
@@ -535,6 +529,23 @@ function renderStory(){
 function renderRecs(){
  document.getElementById('recList').innerHTML=data.recommendations.length?data.recommendations.map(x=>`<div class="card"><div class="row"><img class="cover" style="width:85px;flex:none" src="${x.표지URL||'https://via.placeholder.com/100x150?text=BOOK'}"><div><b>${esc(x.책제목)}</b><div class="author">${esc(x.작가)}</div><p style="font-size:12px;margin-top:10px">${esc(x.추천이유||'')}</p><span class="tag">👩‍🏫 ${esc(x.추천교사||'선생님')}</span><span class="tag">${esc(x.교과||'')}</span>${x.추천월?`<span class="tag">📅 ${esc(x.추천월)}</span>`:''}</div></div></div>`).join(''):'<div class="card">아직 등록된 추천도서가 없어요.</div>';
 }
+function pizzaRowHtml_(c){
+ const mine=me && String(c.학년)===String(me.grade) && String(c.반)===String(me.cls);
+ const done=c.진행률>=100;
+ return `<div style="background:${mine?'#fff7e6':'#fff'};border:${mine?'2px solid #f6cf72':'1px solid var(--line)'};border-radius:14px;padding:10px 14px;margin-bottom:8px">
+   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:8px">
+     <b style="font-size:14px">${done?'🏆 ':''}${esc(c.학년)}학년 ${esc(c.반)}반${mine?' (우리 반)':''}</b>
+     <span style="font-size:12.5px;color:var(--muted);white-space:nowrap">${c.채운권수}/${c.목표권수}권 · ${c.진행률}%</span>
+   </div>
+   <div style="background:#f0ece0;border-radius:100px;height:14px;overflow:hidden">
+     <div style="background:${done?'#f6cf72':'#f58b9d'};height:100%;width:${c.진행률}%;border-radius:100px"></div>
+   </div>
+ </div>`;
+}
+function pizzaBoardHtml_(x){
+ if(!x.반별진행률||!x.반별진행률.length) return '';
+ return `<div style="margin-top:14px;padding-top:14px;border-top:1px dashed var(--line)"><b style="font-size:14px">🍕 반별 진행 현황 (1인당 최대 ${x.인당최대권수}권 반영)</b><div style="margin-top:10px">${x.반별진행률.map(pizzaRowHtml_).join('')}</div></div>`;
+}
 function renderEvents(){
  const el=document.getElementById('eventList'); if(!el)return;
  const groups=[
@@ -548,14 +559,21 @@ function renderEvents(){
    if(!arr.length)return `<div class="activity-section"><div class="activity-badge">${title}</div><div class="activity-empty">${desc}<br>아직 등록된 활동이 없어요.</div></div>`;
    return `<div class="activity-section"><div class="activity-badge">${title}</div>`+arr.map(x=>{
      const btn=x.링크?`<a class="btn" style="display:block;text-align:center;text-decoration:none;margin-top:10px" href="${esc(x.링크)}" target="_blank" rel="noopener">${esc(x.버튼문구||'자세히 보기')}</a>`:'';
-     return `<div class="card activity-card"><div style="font-size:24px">${esc(x.아이콘||'🎉')}</div><h3 style="margin:5px 0">${esc(x.제목)}</h3><p class="desc">${esc(x.설명)}</p><div class="activity-date">📅 ${fmt(x)}</div>${btn}</div>`;
+     return `<div class="card activity-card"><div style="font-size:24px">${esc(x.아이콘||'🎉')}</div><h3 style="margin:5px 0">${esc(x.제목)}</h3><p class="desc">${esc(x.설명)}</p><div class="activity-date">📅 ${fmt(x)}</div>${btn}${pizzaBoardHtml_(x)}</div>`;
    }).join('')+`</div>`;
  }).join('');
 }
 function renderHomeCurrentEvents(){
  const el=document.getElementById('homeCurrentEvents'); if(!el)return;
  const arr=(data.events&&data.events.current)||[];
- el.innerHTML=arr.length?arr.slice(0,2).map(x=>`<div class="banner pizza"><b>${esc(x.아이콘||'🎉')} ${esc(x.제목)}</b><br><small>${esc(x.설명)}</small></div>`).join(''):'<div class="activity-empty">현재 진행 중인 활동이 없어요.</div>';
+ el.innerHTML=arr.length?arr.slice(0,2).map(x=>{
+   let mineLine='';
+   if(x.반별진행률&&x.반별진행률.length){
+     const mine=x.반별진행률.find(c=>me&&String(c.학년)===String(me.grade)&&String(c.반)===String(me.cls));
+     if(mine) mineLine=`<br><small>🍕 우리 반 진행률 ${mine.진행률}% (${mine.채운권수}/${mine.목표권수}권)</small>`;
+   }
+   return `<div class="banner pizza"><b>${esc(x.아이콘||'🎉')} ${esc(x.제목)}</b><br><small>${esc(x.설명)}</small>${mineLine}</div>`;
+ }).join(''):'<div class="activity-empty">현재 진행 중인 활동이 없어요.</div>';
 }
 function adminLogin(){
  adminCode=val('adminCode');if(!adminCode){alert('관리자 코드를 입력해 주세요.');return}
@@ -602,23 +620,39 @@ function renderAdmin(r){
  <p class="desc" style="margin:0 0 6px">표시된 학생: <span id="stuCount">${_adminStudents.length}</span>명</p>
  <div class="adminbox" style="max-height:440px;overflow:auto"><table><tr><th>학년</th><th>반</th><th>번호</th><th>이름</th><th>독서</th><th>책심</th><th>나무</th></tr><tbody id="stuTableBody">${studentRowsHtml_(_adminStudents)}</tbody></table></div></div>
  <div class="card"><h3>🌟 이달의 추천 책 등록</h3><div class="field"><label>추천월</label><input id="rmonth" type="month"></div><div class="field"><label>책 제목</label><input id="rt"></div><div class="field"><label>작가</label><input id="ra"></div><div class="field"><label>ISBN</label><input id="ri"></div><div class="field"><label>표지 URL (선택)</label><input id="rc"></div><div class="row"><input id="rteacher" placeholder="추천교사"><input id="rsubject" placeholder="교과"></div><div class="field"><textarea id="rreason" placeholder="추천 이유"></textarea></div><button class="btn" onclick="saveRec()">추천도서 게시</button></div>
- <div class="card"><h3>🎉 행사 관리</h3><input id="eventId" type="hidden"><p class="desc" style="margin:0 0 8px">시작일·종료일을 비워두면 '일정 미정'으로 표시돼요.</p><div class="row"><div class="field"><label>시작일 (선택)</label><input id="eventStart" type="date"></div><div class="field"><label>종료일 (선택)</label><input id="eventEnd" type="date"></div></div><div class="row"><input id="eventIcon" placeholder="아이콘 예: 🍕"><input id="eventVisible" placeholder="게시 또는 숨김" value="게시"></div><div class="field"><input id="eventTitle" placeholder="행사 제목"></div><div class="field"><textarea id="eventDesc" placeholder="행사 설명"></textarea></div><div class="row"><input id="eventButton" placeholder="버튼 문구"><input id="eventLink" placeholder="링크 (선택)"></div><button class="btn" onclick="saveEventAdmin()">행사 저장</button><button class="btn secondary" style="margin-top:8px" onclick="clearEventForm()">새 행사 입력</button><div id="adminEventList" style="margin-top:12px"></div></div>
+ <div class="card"><h3>🎉 행사 관리</h3><input id="eventId" type="hidden"><p class="desc" style="margin:0 0 8px">시작일·종료일을 비워두면 '일정 미정'으로 표시돼요.</p><div class="row"><div class="field"><label>시작일 (선택)</label><input id="eventStart" type="date"></div><div class="field"><label>종료일 (선택)</label><input id="eventEnd" type="date"></div></div><div class="row"><input id="eventIcon" placeholder="아이콘 예: 🍕"><input id="eventVisible" placeholder="게시 또는 숨김" value="게시"></div><div class="field"><input id="eventTitle" placeholder="행사 제목"></div><div class="field"><textarea id="eventDesc" placeholder="행사 설명"></textarea></div><div class="row"><input id="eventButton" placeholder="버튼 문구"><input id="eventLink" placeholder="링크 (선택)"></div>
+ <div class="row"><div class="field"><label>종류</label><select id="eventType" onchange="onEventTypeChange()"><option value="일반">일반 행사</option><option value="피자챌린지">반별 독서 피자 챌린지</option></select></div><div class="field" id="eventMaxField" style="display:none"><label>1인당 최대 반영 권수</label><input id="eventMax" type="number" min="1" value="10"></div></div>
+ <p class="desc" style="margin:4px 0 8px">'반별 독서 피자 챌린지'로 만들면 시작일~종료일 사이에 읽은 책(1인당 위 권수까지 반영)으로 학년+반별 진행률이 자동 집계되어 학생들에게 보여져요.</p>
+ <button class="btn" onclick="saveEventAdmin()">행사 저장</button><button class="btn secondary" style="margin-top:8px" onclick="clearEventForm()">새 행사 입력</button><button class="btn" id="eventDeleteBtn" style="margin-top:8px;display:none;background:#f58b9d" onclick="deleteEventAdmin()">이 행사 삭제</button><div id="adminEventList" style="margin-top:12px"></div></div>
  <div class="card"><h3>🔐 학생 비밀번호 초기화</h3><div class="row"><input id="rg" placeholder="학년"><input id="rcl" placeholder="반"><input id="rn" placeholder="번호"></div><div class="field"><input id="rname" placeholder="이름"></div><button class="btn yellow" onclick="resetPw()">비밀번호 초기화</button></div>`;
  updateClassOptions_();
  document.getElementById('rmonth').value=new Date().toISOString().slice(0,7);
  renderAdminEvents(r.events||[]);
 }
+let _adminEventsById={};
 function renderAdminEvents(events){
  const el=document.getElementById('adminEventList'); if(!el)return;
+ _adminEventsById={}; events.forEach(e=>{if(e.ID)_adminEventsById[e.ID]=e;});
  if(!events.length){el.innerHTML='<div class="activity-empty">등록된 행사가 없어요.</div>';return;}
- el.innerHTML=events.map(e=>{const period=e.시작일?`${esc(e.시작일)} ~ ${esc(e.종료일||'')}`:'일정 미정';return `<div class="message" style="cursor:pointer" onclick='loadEventAdmin(${JSON.stringify(e).replace(/'/g,"&#39;")})'><b>${esc(e.아이콘||'🎉')} ${esc(e.제목)}</b><br><small>${period} · ${esc(e.게시여부||'게시')}</small></div>`}).join('');
+ el.innerHTML=events.map(e=>{const period=e.시작일?`${esc(e.시작일)} ~ ${esc(e.종료일||'')}`:'일정 미정';const type=e.타입==='피자챌린지'?' · 🍕 피자챌린지':'';return `<div class="message" style="display:flex;align-items:center;gap:8px"><div style="flex:1;cursor:pointer" onclick="loadEventAdmin('${esc(e.ID)}')"><b>${esc(e.아이콘||'🎉')} ${esc(e.제목)}</b><br><small>${period} · ${esc(e.게시여부||'게시')}${type}</small></div><button class="btn secondary" style="flex:none;padding:8px 12px;font-size:13px" onclick="deleteEventFromList('${esc(e.ID)}')">삭제</button></div>`}).join('');
 }
-function loadEventAdmin(e){
- document.getElementById('eventId').value=e.ID||'';document.getElementById('eventStart').value=e.시작일||'';document.getElementById('eventEnd').value=e.종료일||'';document.getElementById('eventIcon').value=e.아이콘||'';document.getElementById('eventVisible').value=e.게시여부||'게시';document.getElementById('eventTitle').value=e.제목||'';document.getElementById('eventDesc').value=e.설명||'';document.getElementById('eventButton').value=e.버튼문구||'';document.getElementById('eventLink').value=e.링크||'';window.scrollTo({top:document.getElementById('teacher').offsetTop,behavior:'smooth'});
+function onEventTypeChange(){document.getElementById('eventMaxField').style.display=val('eventType')==='피자챌린지'?'':'none';}
+function loadEventAdmin(id){
+ const e=_adminEventsById[id]; if(!e)return;
+ document.getElementById('eventId').value=e.ID||'';document.getElementById('eventStart').value=e.시작일||'';document.getElementById('eventEnd').value=e.종료일||'';document.getElementById('eventIcon').value=e.아이콘||'';document.getElementById('eventVisible').value=e.게시여부||'게시';document.getElementById('eventTitle').value=e.제목||'';document.getElementById('eventDesc').value=e.설명||'';document.getElementById('eventButton').value=e.버튼문구||'';document.getElementById('eventLink').value=e.링크||'';document.getElementById('eventType').value=e.타입||'일반';document.getElementById('eventMax').value=e.인당최대권수||10;onEventTypeChange();document.getElementById('eventDeleteBtn').style.display='';window.scrollTo({top:document.getElementById('teacher').offsetTop,behavior:'smooth'});
 }
-function clearEventForm(){['eventId','eventStart','eventEnd','eventIcon','eventTitle','eventDesc','eventButton','eventLink'].forEach(id=>document.getElementById(id).value='');document.getElementById('eventVisible').value='게시';}
+function clearEventForm(){['eventId','eventStart','eventEnd','eventIcon','eventTitle','eventDesc','eventButton','eventLink'].forEach(id=>document.getElementById(id).value='');document.getElementById('eventVisible').value='게시';document.getElementById('eventType').value='일반';document.getElementById('eventMax').value=10;onEventTypeChange();document.getElementById('eventDeleteBtn').style.display='none';}
 function saveEventAdmin(){
- google.script.run.withSuccessHandler(r=>{alert(r.message);if(r.ok){google.script.run.withSuccessHandler(renderAdmin).withFailureHandler(onFail).getAdminDashboard(adminCode)}}).withFailureHandler(onFail).saveEvent(adminCode,val('eventId'),val('eventStart'),val('eventEnd'),val('eventIcon'),val('eventTitle'),val('eventDesc'),val('eventButton'),val('eventLink'),val('eventVisible'));
+ google.script.run.withSuccessHandler(r=>{alert(r.message);if(r.ok){clearEventForm();google.script.run.withSuccessHandler(renderAdmin).withFailureHandler(onFail).getAdminDashboard(adminCode)}}).withFailureHandler(onFail).saveEvent(adminCode,val('eventId'),val('eventStart'),val('eventEnd'),val('eventIcon'),val('eventTitle'),val('eventDesc'),val('eventButton'),val('eventLink'),val('eventVisible'),val('eventType'),val('eventMax'));
+}
+function deleteEventAdmin(){
+ const id=val('eventId'); if(!id)return;
+ if(!confirm('이 행사를 정말 삭제할까요?'))return;
+ google.script.run.withSuccessHandler(r=>{alert(r.message);if(r.ok){clearEventForm();google.script.run.withSuccessHandler(renderAdmin).withFailureHandler(onFail).getAdminDashboard(adminCode)}}).withFailureHandler(onFail).deleteEvent(adminCode,id);
+}
+function deleteEventFromList(id){
+ if(!confirm('이 행사를 정말 삭제할까요?'))return;
+ google.script.run.withSuccessHandler(r=>{alert(r.message);if(r.ok){clearEventForm();google.script.run.withSuccessHandler(renderAdmin).withFailureHandler(onFail).getAdminDashboard(adminCode)}}).withFailureHandler(onFail).deleteEvent(adminCode,id);
 }
 function saveRec(){
  google.script.run.withSuccessHandler(r=>{alert(r.message);if(r.ok){rebuildDataForAdmin()}}).withFailureHandler(onFail).saveRecommendation(adminCode,val('rt'),val('ra'),val('ri'),val('rc'),val('rteacher'),val('rsubject'),val('rreason'),val('rmonth'));

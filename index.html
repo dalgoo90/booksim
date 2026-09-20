@@ -636,7 +636,7 @@ function renderAdminEvents(events){
  const el=document.getElementById('adminEventList'); if(!el)return;
  _adminEventsById={}; events.forEach(e=>{if(e.ID)_adminEventsById[e.ID]=e;});
  if(!events.length){el.innerHTML='<div class="activity-empty">등록된 행사가 없어요.</div>';return;}
- el.innerHTML=events.map(e=>{const period=e.시작일?`${esc(e.시작일)} ~ ${esc(e.종료일||'')}`:'일정 미정';const type=e.타입==='피자챌린지'?' · 🍕 피자챌린지':'';return `<div class="message" style="display:flex;align-items:center;gap:8px"><div style="flex:1;cursor:pointer" onclick="loadEventAdmin('${esc(e.ID)}')"><b>${esc(e.아이콘||'🎉')} ${esc(e.제목)}</b><br><small>${period} · ${esc(e.게시여부||'게시')}${type}</small></div><button class="btn secondary" style="flex:none;padding:8px 12px;font-size:13px" onclick="deleteEventFromList('${esc(e.ID)}')">삭제</button></div>`}).join('');
+ el.innerHTML=events.map(e=>{const period=e.시작일?`${esc(e.시작일)} ~ ${esc(e.종료일||'')}`:'일정 미정';const type=e.타입==='피자챌린지'?' · 🍕 피자챌린지':'';return `<div class="message" style="display:flex;align-items:center;gap:8px"><div style="flex:1;min-width:0;cursor:pointer" onclick="loadEventAdmin('${esc(e.ID)}')"><b>${esc(e.아이콘||'🎉')} ${esc(e.제목)}</b><br><small>${period} · ${esc(e.게시여부||'게시')}${type}</small></div><button class="btn secondary" style="flex:none;width:auto;padding:8px 12px;font-size:13px;white-space:nowrap" onclick="deleteEventFromList('${esc(e.ID)}')">삭제</button></div>`}).join('');
 }
 function onEventTypeChange(){document.getElementById('eventMaxField').style.display=val('eventType')==='피자챌린지'?'':'none';}
 function loadEventAdmin(id){

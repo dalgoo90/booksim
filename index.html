@@ -58,6 +58,8 @@ input,textarea,select{width:100%;padding:13px;border:1px solid #dce4d9;border-ra
 .loading{text-align:center;padding:50px;color:var(--muted)}
 .hide{display:none!important}.right{text-align:right}.sectionhead{display:flex;justify-content:space-between;align-items:center;margin-top:20px}.sectionhead h2{font:20px Jua;margin:0}.link{color:var(--green);font-size:12px;font-weight:700}
 .adminbox{background:#f5f7f2;border-radius:16px;padding:12px;overflow:auto}.adminbox table{width:100%;border-collapse:collapse;font-size:11px}.adminbox th,.adminbox td{padding:8px;border-bottom:1px solid #dde5d9;text-align:left;white-space:nowrap}.adminbox th{position:sticky;top:0;background:#f5f7f2;z-index:1}
+.noticeBanner{background:#fff7e6;border:1px solid #f0d98c;border-radius:18px;padding:14px 16px;margin:10px 0;position:relative;display:flex;gap:10px;align-items:flex-start}.noticeBanner .noticeIcon{font-size:20px;flex:none}.noticeBanner .noticeBody{flex:1;min-width:0}.noticeBanner b{display:block;font-size:14px;color:#7a5c00}.noticeBanner p{margin:4px 0 0;font-size:12.5px;color:#6b5a2e;line-height:1.5;white-space:pre-line}.noticeClose{flex:none;background:none;border:0;color:#a8905a;font-size:16px;padding:0 2px;width:auto}
+.faqItem{background:#fff;border:1px solid var(--line);border-radius:16px;margin:10px 0;overflow:hidden}.faqQ{width:100%;text-align:left;background:none;padding:15px 16px;font-weight:800;font-size:14px;display:flex;justify-content:space-between;align-items:center;gap:10px}.faqQ .arrow{transition:transform .2s;flex:none;color:var(--muted)}.faqItem.open .faqQ .arrow{transform:rotate(180deg)}.faqA{max-height:0;overflow:hidden;transition:max-height .2s ease}.faqItem.open .faqA{max-height:400px}.faqA p{margin:0;padding:0 16px 16px;font-size:13px;line-height:1.6;color:#556158;white-space:pre-line}
 @media(max-width:520px){
   body{font-size:15px;background:var(--cream)}
   .app{width:100%;max-width:none;min-height:100svh;box-shadow:none}
@@ -204,7 +206,14 @@ input,textarea,select{width:100%;padding:13px;border:1px solid #dce4d9;border-ra
    <button class="action" onclick="show('recommend')">🌟 이달의 추천 책<small>선생님 추천</small></button>
    <button class="action" onclick="show('events')">🎉 학교 행사<small>지금 진행 중인 행사부터 앞으로 만날 행사까지</small></button>
    <button class="action" onclick="show('stages')">🌳 나무 성장 단계<small>책심이 몇 개면 어떤 단계가 되는지 알아봐요</small></button>
+   <button class="action" onclick="show('faq')">❓ 자주 묻는 질문<small>궁금한 점을 미리 찾아봐요</small></button>
   </div>
+</section>
+
+<section id="faq" class="screen">
+  <h1 class="title">❓ 자주 묻는 질문</h1>
+  <p class="desc">궁금한 내용을 눌러서 답을 확인해 보세요.</p>
+  <div id="faqList"></div>
 </section>
 
 <section id="stages" class="screen">
@@ -345,7 +354,7 @@ function showScreen(id){
  document.getElementById(id).classList.add('active');
  if(me) document.getElementById('nav').classList.remove('hide'); else document.getElementById('nav').classList.add('hide');
  document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));
- const map={home:'nHome',books:'nBooks',quote:'nQuote',story:'nQuote',activityHub:'nQuote',recommend:'nMore',events:'nMore',moreHub:'nMore',stages:'nMore',addBook:'nBooks',setup:'nHome'};
+ const map={home:'nHome',books:'nBooks',quote:'nQuote',story:'nQuote',activityHub:'nQuote',recommend:'nMore',events:'nMore',moreHub:'nMore',stages:'nMore',faq:'nMore',addBook:'nBooks',setup:'nHome'};
  if(map[id]) document.getElementById(map[id]).classList.add('active');
  if(id==='home'&&data) renderHome();
  if(id==='books'&&data) renderBooks();
@@ -354,6 +363,20 @@ function showScreen(id){
  if(id==='events'&&data) renderEvents();
  if(id==='story'&&data) renderStory();
  if(id==='stages') renderStages();
+ if(id==='faq'&&data) renderFaq();
+}
+function renderFaq(){
+ const el=document.getElementById('faqList'); if(!el) return;
+ const list=(data&&data.faqs)||[];
+ if(!list.length){el.innerHTML='<div class="activity-empty">등록된 질문이 아직 없어요.</div>';return;}
+ el.innerHTML=list.map((x,i)=>`<div class="faqItem" id="faqItem${i}">
+   <button class="faqQ" onclick="toggleFaq(${i})"><span>${esc(x.질문)}</span><span class="arrow">▾</span></button>
+   <div class="faqA"><p>${esc(x.답변)}</p></div>
+ </div>`).join('');
+}
+function toggleFaq(i){
+ const el=document.getElementById('faqItem'+i); if(!el)return;
+ el.classList.toggle('open');
 }
 function renderStages(){
  const el=document.getElementById('stagesList'); if(!el) return;
@@ -415,10 +438,28 @@ function afterLogin(){
  if(!me.treeType||!me.potType||!me.treeName){renderTreeSetup();show('setup');return}
  show('home');
 }
+function dismissedAnnouncementIds_(){
+ try{ return JSON.parse(localStorage.getItem('booksimDismissedAnnouncements')||'[]'); }catch(e){ return []; }
+}
+function announcementBannerHtml_(){
+ const list=(data&&data.announcements)||[];
+ if(!list.length) return '';
+ const dismissed=dismissedAnnouncementIds_();
+ const x=list.find(a=>!dismissed.includes(a.ID));
+ if(!x) return '';
+ return `<div class="noticeBanner" id="noticeBanner"><div class="noticeIcon">📢</div><div class="noticeBody"><b>${esc(x.제목)}</b>${x.내용?`<p>${esc(x.내용)}</p>`:''}</div><button class="noticeClose" onclick="dismissAnnouncement('${esc(x.ID)}')" aria-label="닫기">✕</button></div>`;
+}
+function dismissAnnouncement(id){
+ const dismissed=dismissedAnnouncementIds_();
+ if(!dismissed.includes(id)) dismissed.push(id);
+ try{ localStorage.setItem('booksimDismissedAnnouncements', JSON.stringify(dismissed)); }catch(e){}
+ const el=document.getElementById('noticeBanner'); if(el) el.remove();
+}
 function renderHome(){
  const st=data.stage;
  document.getElementById('homeContent').innerHTML=`
  <div class="hello" style="margin:10px 2px"><div class="desc">오늘도 책과 함께 자라요 🌱</div><strong>${esc(me.name)}님, 안녕!</strong></div>
+ ${announcementBannerHtml_()}
  <div class="hero">
    <img class="tree-img" src="${stageImg_(st.title)}" alt="${esc(st.title)}" onerror="this.style.display='none'">
    <div class="tree-name">${esc(me.treeName||'나의 책나무')}</div>
@@ -679,10 +720,82 @@ function renderAdmin(r){
  <div class="row"><div class="field"><label>종류</label><select id="eventType" onchange="onEventTypeChange()"><option value="일반">일반 행사</option><option value="피자챌린지">반별 독서 피자 챌린지</option></select></div><div class="field" id="eventMaxField" style="display:none"><label>1인당 최대 반영 권수</label><input id="eventMax" type="number" min="1" value="10"></div></div>
  <p class="desc" style="margin:4px 0 8px">'반별 독서 피자 챌린지'로 만들면 시작일~종료일 사이에 읽은 책(1인당 위 권수까지 반영)으로 학년+반별 진행률이 자동 집계되어 학생들에게 보여져요.</p>
  <button class="btn" onclick="saveEventAdmin()">행사 저장</button><button class="btn secondary" style="margin-top:8px" onclick="clearEventForm()">새 행사 입력</button><button class="btn" id="eventDeleteBtn" style="margin-top:8px;display:none;background:#f58b9d" onclick="deleteEventAdmin()">이 행사 삭제</button><div id="adminEventList" style="margin-top:12px"></div></div>
+ <div class="card"><h3>📢 공지사항 관리</h3><input id="noticeId" type="hidden"><p class="desc" style="margin:0 0 8px">가장 최근에 등록한 공지 하나가 학생 홈 화면 상단에 배너로 떠요.</p><div class="field"><input id="noticeTitle" placeholder="공지 제목"></div><div class="field"><textarea id="noticeContent" placeholder="공지 내용 (선택)"></textarea></div><div class="field"><input id="noticeVisible" placeholder="게시 또는 숨김" value="게시"></div><button class="btn" onclick="saveAnnouncementAdmin()">공지 저장</button><button class="btn secondary" style="margin-top:8px" onclick="clearAnnouncementForm()">새 공지 입력</button><button class="btn" id="noticeDeleteBtn" style="margin-top:8px;display:none;background:#f58b9d" onclick="deleteAnnouncementAdmin()">이 공지 삭제</button><div id="adminAnnouncementList" style="margin-top:12px"></div></div>
+ <div class="card"><h3>❓ 자주 묻는 질문(FAQ) 관리</h3><input id="faqId" type="hidden"><div class="row"><div class="field"><label>순서 (작을수록 위)</label><input id="faqOrder" type="number" value="0"></div><div class="field"><label>게시여부</label><input id="faqVisible" placeholder="게시 또는 숨김" value="게시"></div></div><div class="field"><label>질문</label><input id="faqQuestion" placeholder="예: 책심은 어떻게 쌓여요?"></div><div class="field"><label>답변</label><textarea id="faqAnswer" placeholder="답변을 입력해 주세요."></textarea></div><button class="btn" onclick="saveFaqAdmin()">FAQ 저장</button><button class="btn secondary" style="margin-top:8px" onclick="clearFaqForm()">새 FAQ 입력</button><button class="btn" id="faqDeleteBtn" style="margin-top:8px;display:none;background:#f58b9d" onclick="deleteFaqAdmin()">이 FAQ 삭제</button><div id="adminFaqList" style="margin-top:12px"></div></div>
  <div class="card"><h3>🔐 학생 비밀번호 초기화</h3><div class="row"><input id="rg" placeholder="학년"><input id="rcl" placeholder="반"><input id="rn" placeholder="번호"></div><div class="field"><input id="rname" placeholder="이름"></div><button class="btn yellow" onclick="resetPw()">비밀번호 초기화</button></div>`;
  updateClassOptions_();
  document.getElementById('rmonth').value=new Date().toISOString().slice(0,7);
  renderAdminEvents(r.events||[]);
+ renderAdminAnnouncements(r.announcements||[]);
+ renderAdminFaqs(r.faqs||[]);
+}
+let _adminAnnouncementsById={};
+function renderAdminAnnouncements(list){
+ const el=document.getElementById('adminAnnouncementList'); if(!el)return;
+ _adminAnnouncementsById={}; list.forEach(x=>{if(x.ID)_adminAnnouncementsById[x.ID]=x;});
+ if(!list.length){el.innerHTML='<div class="activity-empty">등록된 공지가 없어요.</div>';return;}
+ el.innerHTML=list.map(x=>`<div class="message" style="display:flex;align-items:center;gap:8px"><div style="flex:1;min-width:0;cursor:pointer" onclick="loadAnnouncementAdmin('${esc(x.ID)}')"><b>${esc(x.제목)}</b><br><small>${esc(x.등록일||'')} · ${esc(x.게시여부||'게시')}</small></div><button class="btn secondary" style="flex:none;width:auto;padding:8px 12px;font-size:13px;white-space:nowrap" onclick="deleteAnnouncementFromList('${esc(x.ID)}')">삭제</button></div>`).join('');
+}
+function loadAnnouncementAdmin(id){
+ const x=_adminAnnouncementsById[id]; if(!x)return;
+ document.getElementById('noticeId').value=x.ID||'';
+ document.getElementById('noticeTitle').value=x.제목||'';
+ document.getElementById('noticeContent').value=x.내용||'';
+ document.getElementById('noticeVisible').value=x.게시여부||'게시';
+ document.getElementById('noticeDeleteBtn').style.display='';
+ window.scrollTo({top:document.getElementById('teacher').offsetTop,behavior:'smooth'});
+}
+function clearAnnouncementForm(){
+ ['noticeId','noticeTitle','noticeContent'].forEach(id=>document.getElementById(id).value='');
+ document.getElementById('noticeVisible').value='게시';
+ document.getElementById('noticeDeleteBtn').style.display='none';
+}
+function saveAnnouncementAdmin(){
+ google.script.run.withSuccessHandler(r=>{alert(r.message);if(r.ok){clearAnnouncementForm();rebuildDataForAdmin()}}).withFailureHandler(onFail).saveAnnouncement(adminCode,val('noticeId'),val('noticeTitle'),val('noticeContent'),val('noticeVisible'));
+}
+function deleteAnnouncementAdmin(){
+ const id=val('noticeId'); if(!id)return;
+ if(!confirm('이 공지를 정말 삭제할까요?'))return;
+ google.script.run.withSuccessHandler(r=>{alert(r.message);if(r.ok){clearAnnouncementForm();rebuildDataForAdmin()}}).withFailureHandler(onFail).deleteAnnouncement(adminCode,id);
+}
+function deleteAnnouncementFromList(id){
+ if(!confirm('이 공지를 정말 삭제할까요?'))return;
+ google.script.run.withSuccessHandler(r=>{alert(r.message);if(r.ok){clearAnnouncementForm();rebuildDataForAdmin()}}).withFailureHandler(onFail).deleteAnnouncement(adminCode,id);
+}
+let _adminFaqsById={};
+function renderAdminFaqs(list){
+ const el=document.getElementById('adminFaqList'); if(!el)return;
+ _adminFaqsById={}; list.forEach(x=>{if(x.ID)_adminFaqsById[x.ID]=x;});
+ if(!list.length){el.innerHTML='<div class="activity-empty">등록된 FAQ가 없어요.</div>';return;}
+ el.innerHTML=list.map(x=>`<div class="message" style="display:flex;align-items:center;gap:8px"><div style="flex:1;min-width:0;cursor:pointer" onclick="loadFaqAdmin('${esc(x.ID)}')"><b>${esc(x.질문)}</b><br><small>순서 ${x.순서} · ${esc(x.게시여부||'게시')}</small></div><button class="btn secondary" style="flex:none;width:auto;padding:8px 12px;font-size:13px;white-space:nowrap" onclick="deleteFaqFromList('${esc(x.ID)}')">삭제</button></div>`).join('');
+}
+function loadFaqAdmin(id){
+ const x=_adminFaqsById[id]; if(!x)return;
+ document.getElementById('faqId').value=x.ID||'';
+ document.getElementById('faqOrder').value=x.순서||0;
+ document.getElementById('faqQuestion').value=x.질문||'';
+ document.getElementById('faqAnswer').value=x.답변||'';
+ document.getElementById('faqVisible').value=x.게시여부||'게시';
+ document.getElementById('faqDeleteBtn').style.display='';
+ window.scrollTo({top:document.getElementById('teacher').offsetTop,behavior:'smooth'});
+}
+function clearFaqForm(){
+ ['faqId','faqQuestion','faqAnswer'].forEach(id=>document.getElementById(id).value='');
+ document.getElementById('faqOrder').value=0;
+ document.getElementById('faqVisible').value='게시';
+ document.getElementById('faqDeleteBtn').style.display='none';
+}
+function saveFaqAdmin(){
+ google.script.run.withSuccessHandler(r=>{alert(r.message);if(r.ok){clearFaqForm();rebuildDataForAdmin()}}).withFailureHandler(onFail).saveFaq(adminCode,val('faqId'),val('faqQuestion'),val('faqAnswer'),val('faqOrder'),val('faqVisible'));
+}
+function deleteFaqAdmin(){
+ const id=val('faqId'); if(!id)return;
+ if(!confirm('이 FAQ를 정말 삭제할까요?'))return;
+ google.script.run.withSuccessHandler(r=>{alert(r.message);if(r.ok){clearFaqForm();rebuildDataForAdmin()}}).withFailureHandler(onFail).deleteFaq(adminCode,id);
+}
+function deleteFaqFromList(id){
+ if(!confirm('이 FAQ를 정말 삭제할까요?'))return;
+ google.script.run.withSuccessHandler(r=>{alert(r.message);if(r.ok){clearFaqForm();rebuildDataForAdmin()}}).withFailureHandler(onFail).deleteFaq(adminCode,id);
 }
 let _adminEventsById={};
 function renderAdminEvents(events){

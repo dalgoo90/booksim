@@ -203,7 +203,14 @@ input,textarea,select{width:100%;padding:13px;border:1px solid #dce4d9;border-ra
   <div class="actions" style="grid-template-columns:1fr">
    <button class="action" onclick="show('recommend')">🌟 이달의 추천 책<small>선생님 추천</small></button>
    <button class="action" onclick="show('events')">🎉 학교 행사<small>지금 진행 중인 행사부터 앞으로 만날 행사까지</small></button>
+   <button class="action" onclick="show('stages')">🌳 나무 성장 단계<small>책심이 몇 개면 어떤 단계가 되는지 알아봐요</small></button>
   </div>
+</section>
+
+<section id="stages" class="screen">
+  <h1 class="title">🌳 나무 성장 단계</h1>
+  <p class="desc">책 3권을 읽고 기록하면 책심 1개! 책심이 쌓일수록 나무가 자라요.</p>
+  <div id="stagesList"></div>
 </section>
 
 <section id="events" class="screen">
@@ -307,6 +314,22 @@ let screenHistory=[];
 const trees=[['green','🌳','단풍나무'],['flower','🌸','벚나무'],['fruit','🍎','사과나무'],['forest','🌲','소나무']];
 const STAGE_IMAGES={'씨앗':'tree-1.png','새싹':'tree-2.png','어린 나무':'tree-3.png','책나무':'tree-4.png','꽃나무':'tree-5.png','열매나무':'tree-6.png','나만의 책숲':'tree-7.png'};
 function stageImg_(title){return STAGE_IMAGES[title]||'';}
+const STAGE_LIST=[
+ {title:'씨앗',min:0,max:1,desc:'책심의 씨앗을 심었어요!'},
+ {title:'새싹',min:2,max:3,desc:'작은 새싹이 올라왔어요!'},
+ {title:'어린 나무',min:4,max:6,desc:'책을 먹고 쑥쑥 자라고 있어요!'},
+ {title:'책나무',min:7,max:9,desc:'제법 멋진 책나무가 되었어요!'},
+ {title:'꽃나무',min:10,max:13,desc:'책을 읽은 마음에 꽃이 피었어요!'},
+ {title:'열매나무',min:14,max:17,desc:'책심의 열매가 주렁주렁!'},
+ {title:'나만의 책숲',min:18,max:null,desc:'나만의 책숲이 완성되었어요!'}
+];
+function nextStageHint_(point){
+ const idx=STAGE_LIST.findIndex(s=>point>=s.min&&(s.max===null||point<=s.max));
+ if(idx<0||idx===STAGE_LIST.length-1) return '';
+ const next=STAGE_LIST[idx+1];
+ const left=next.min-point;
+ return `${next.title}까지 책심 ${left}개 남았어요!`;
+}
 const pots=[['basic','🪴','기본 화분'],['basket','🧺','바구니'],['ceramic','🏺','도자기 화분'],['book','📚','책 화분']];
 function show(id, addHistory=true){
  const current = document.querySelector('.screen.active');
@@ -322,7 +345,7 @@ function showScreen(id){
  document.getElementById(id).classList.add('active');
  if(me) document.getElementById('nav').classList.remove('hide'); else document.getElementById('nav').classList.add('hide');
  document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));
- const map={home:'nHome',books:'nBooks',quote:'nQuote',story:'nQuote',activityHub:'nQuote',recommend:'nMore',events:'nMore',moreHub:'nMore',addBook:'nBooks',setup:'nHome'};
+ const map={home:'nHome',books:'nBooks',quote:'nQuote',story:'nQuote',activityHub:'nQuote',recommend:'nMore',events:'nMore',moreHub:'nMore',stages:'nMore',addBook:'nBooks',setup:'nHome'};
  if(map[id]) document.getElementById(map[id]).classList.add('active');
  if(id==='home'&&data) renderHome();
  if(id==='books'&&data) renderBooks();
@@ -330,6 +353,23 @@ function showScreen(id){
  if(id==='recommend'&&data) renderRecs();
  if(id==='events'&&data) renderEvents();
  if(id==='story'&&data) renderStory();
+ if(id==='stages') renderStages();
+}
+function renderStages(){
+ const el=document.getElementById('stagesList'); if(!el) return;
+ const point=data?data.point:-1;
+ el.innerHTML=STAGE_LIST.map(s=>{
+  const isCurrent=point>=s.min&&(s.max===null||point<=s.max);
+  const range=s.max===null?`책심 ${s.min}개 이상`:`책심 ${s.min}~${s.max}개`;
+  return `<div class="card" style="display:flex;gap:14px;align-items:center;${isCurrent?'border:2px solid #4f9b68;background:#f3faf1':''}">
+    <img src="${stageImg_(s.title)}" alt="${esc(s.title)}" style="width:64px;height:64px;object-fit:contain;flex:none" onerror="this.style.display='none'">
+    <div>
+      <div style="display:flex;align-items:center;gap:6px"><b style="font-size:16px">${esc(s.title)}</b>${isCurrent?'<span class="tag" style="margin:0">지금 여기</span>':''}</div>
+      <div style="font-size:12px;color:var(--muted);margin:2px 0 4px">${range}</div>
+      <div style="font-size:13px">${esc(s.desc)}</div>
+    </div>
+  </div>`;
+ }).join('');
 }
 
 function goBack(){
@@ -382,7 +422,8 @@ function renderHome(){
  <div class="hero">
    <img class="tree-img" src="${stageImg_(st.title)}" alt="${esc(st.title)}" onerror="this.style.display='none'">
    <div class="tree-name">${esc(me.treeName||'나의 책나무')}</div>
-   <div class="tag">${st.title}</div>
+   <button class="tag" style="border:0;cursor:pointer" onclick="show('stages')">${esc(st.title)} · 성장 단계 보기 ℹ️</button>
+   ${nextStageHint_(data.point)?`<div style="font-size:12px;color:#4c7c57;margin-top:2px">${esc(nextStageHint_(data.point))}</div>`:''}
    <div class="stats"><div class="stat"><b class="point">💗 ${data.point}</b><span>책심</span></div><div class="stat"><b>📚 ${data.bookCount}</b><span>읽은 책</span></div><div class="stat"><b>🌿 ${data.quoteCount}</b><span>채집 문장</span></div></div>
  </div>
  <div class="card"><div style="font-weight:800">💧 오늘은 물을 줬나요?</div><p class="desc" id="waterMsg" style="margin:5px 0 10px">나무가 물을 기다리고 있어요!</p><button class="btn secondary" id="waterBtn" onclick="waterTree()">물 주기 💧</button></div>

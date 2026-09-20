@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>책심</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700;800&display=swap');
+:root{--green:#4f9b68;--light:#eef8ee;--cream:#fffaf0;--pink:#f58b9d;--yellow:#f6cf72;--ink:#344238;--muted:#7b877e;--line:#e5eadf}
+*{box-sizing:border-box}body{margin:0;background:#f5f4ed;color:var(--ink);font-family:'Noto Sans KR',sans-serif}
+button,input,textarea,select{font:inherit}button{cursor:pointer;border:0}
+.app{max-width:480px;margin:auto;min-height:100vh;min-height:100dvh;background:var(--cream);box-shadow:0 0 30px #00000010;display:flex;flex-direction:column}
+#inappBanner{display:none;position:sticky;top:0;z-index:20;background:#fff3cd;border-bottom:1px solid #f0d98c;color:#5a4a1a;font-size:12.5px;line-height:1.5;padding:10px 14px;text-align:center}
+#inappBanner b{color:#7a5c00}
+header{padding:18px 20px 12px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fffaf0ee;backdrop-filter:blur(10px);z-index:5}
+.logo{font:32px Jua;color:#356b47}.sub{font-size:11px;color:#849084}
+.iconbtn{background:white;border:1px solid var(--line);border-radius:50%;width:38px;height:38px}
+main{padding:0 16px 92px;flex:1;display:flex;flex-direction:column}
+.screen{display:none}
+.screen.active{display:flex;flex-direction:column;flex:1;min-height:0}
+#login.screen.active,#setupPassword.screen.active{justify-content:center}
+#login .card,#setupPassword .card{padding:38px 24px;width:100%}
+#login .card .field,#setupPassword .card .field{margin:20px 0}
+#login .card input,#setupPassword .card input{padding:18px;font-size:18px;min-height:58px}
+#login .card .btn,#setupPassword .card .btn{padding:20px;font-size:20px;min-height:62px;margin-top:8px}
+#login .card .btn.secondary{margin-top:12px}
+#login .card .field label,#setupPassword .card .field label{font-size:16px;margin-bottom:8px}
+#login .card .remember-login{font-size:15px;margin:2px 0 18px;gap:10px}
+#login .card .remember-login input{width:20px;height:20px}
+#login .card .desc{font-size:14.5px}
+h1,h2,h3,p{margin-top:0}.title{font:26px Jua;margin:10px 0}.desc{color:var(--muted);font-size:13px}
+.card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:16px;margin:12px 0;box-shadow:0 5px 15px #00000005}
+.hero{background:linear-gradient(180deg,#dff4df,#fff9ed);border-radius:28px;padding:20px 16px;text-align:center;min-height:360px;position:relative;overflow:hidden}
+.hero:after{content:'✦  ❀  ✿  ✦';position:absolute;bottom:8px;left:0;right:0;color:#b9d6ad;letter-spacing:20px}
+.hello{text-align:left}.hello strong{font-size:20px}
+.tree{font-size:125px;line-height:1;margin:28px 0 8px;filter:drop-shadow(0 7px 5px #00000012);animation:bob 3s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-4px)}}
+.pot{margin:10px auto 0;width:64px;height:38px;background:#d99363;border-radius:0 0 14px 14px;position:relative;border-top:6px solid #b96f49;box-shadow:0 5px 7px #00000012}.pot:before{content:'';position:absolute;left:-5px;right:-5px;top:-9px;height:8px;background:#c17a50;border-radius:8px}.pot.book{background:#7aa8d8;border-top-color:#5c86b6}.pot.basket{background:#c9a46a;border-top-color:#a5814c}.pot.ceramic{background:#cfcfcf;border-top-color:#a9a9a9}.remember-login{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin:-4px 0 14px}.remember-login input{width:auto}.tree-name{font:20px Jua;margin-top:4px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px}.stat{background:#ffffffcc;border-radius:15px;padding:11px 4px}.stat b{display:block;font-size:20px}.stat span{font-size:11px;color:var(--muted)}
+.point{color:#e25f79}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.action{padding:15px;border-radius:18px;background:#fff;text-align:left;border:1px solid var(--line);font-weight:700}.action small{display:block;color:var(--muted);font-weight:400;margin-top:3px}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(480px,100%);background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:8px 6px calc(8px + env(safe-area-inset-bottom));z-index:10}.nav button{background:none;color:#89938a;font-size:11px}.nav button.active{color:var(--green);font-weight:800}.nav span{display:block;font-size:22px;margin-bottom:2px}
+input,textarea,select{width:100%;padding:13px;border:1px solid #dce4d9;border-radius:13px;background:#fff;outline:none;font-size:16px}textarea{min-height:120px;resize:vertical}.field{margin:10px 0}.field label{display:block;font-size:12px;font-weight:700;margin:0 0 6px}.btn{width:100%;padding:14px;border-radius:14px;background:var(--green);color:#fff;font-weight:800}.btn.secondary{background:#eef5ed;color:#3e704d}.btn.pink{background:#f38b9d}.btn.yellow{background:#e9bd5e;color:#4b4024}
+.row{display:flex;gap:8px}.row>*{flex:1}.bookgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.book{background:#fff;border-radius:15px;overflow:hidden;border:1px solid var(--line)}.cover{width:100%;aspect-ratio:2/3;object-fit:cover;background:#edf1e9;display:flex;align-items:center;justify-content:center;font-size:28px}.cover img{width:100%;height:100%;object-fit:cover}.bookinfo{padding:8px}.booktitle{font-size:12px;font-weight:800;line-height:1.35}.author{font-size:10px;color:var(--muted);margin-top:3px}
+.quote{background:#f1f8ed;border-radius:18px;padding:16px;position:relative}.quote:before{content:'“';font:50px Georgia;color:#8bbd86;position:absolute;right:12px;top:-5px}.quote p{font-weight:700;line-height:1.7}.quote small{color:var(--muted)}
+.banner{padding:17px;border-radius:20px;margin:10px 0}.banner.pizza{background:#fff0eb}.banner.blue{background:#eaf4ff}.banner.cookie{background:#fff6df}.banner.pink{background:#fff0f4}
+.tag{display:inline-block;background:#eef5ed;border-radius:20px;padding:5px 9px;font-size:10px;color:#4c7c57;margin:3px}
+.treechoices{display:grid;grid-template-columns:1fr 1fr;gap:10px}.choice{border:2px solid var(--line);border-radius:18px;padding:15px;text-align:center;background:white}.choice.selected{border-color:var(--green);background:#eff8ed}.choice .big{font-size:52px}.choice b{display:block}
+.message{padding:12px;border-radius:12px;background:#f2f6ef;margin:10px 0;font-size:13px}.activity-section{margin-top:18px}.activity-section h3{font:18px Jua;margin:0 0 8px}.activity-badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:10px;font-weight:800;background:#eef5ed;color:#4f7b59;margin-bottom:8px}.activity-empty{padding:16px;border-radius:16px;background:#f8faf6;color:#89938a;font-size:12px}.activity-card{margin:8px 0}.activity-date{font-size:10px;color:#8b958c;margin-top:6px}.forest-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}.forest-card{background:#f7fbf5;border:1px solid var(--line);border-radius:16px;padding:10px;text-align:center}.forest-tree{font-size:40px;line-height:1.1}.forest-num{font-size:10px;color:var(--muted)}.forest-name{font-weight:800;font-size:12px;margin-top:3px}.forest-books{font-size:10px;color:var(--green);margin-top:2px}.forest-empty{grid-column:1/-1}
+.loading{text-align:center;padding:50px;color:var(--muted)}
+.hide{display:none!important}.right{text-align:right}.sectionhead{display:flex;justify-content:space-between;align-items:center;margin-top:20px}.sectionhead h2{font:20px Jua;margin:0}.link{color:var(--green);font-size:12px;font-weight:700}
+.adminbox{background:#f5f7f2;border-radius:16px;padding:12px;overflow:auto}.adminbox table{width:100%;border-collapse:collapse;font-size:11px}.adminbox th,.adminbox td{padding:8px;border-bottom:1px solid #dde5d9;text-align:left;white-space:nowrap}
+@media(max-width:520px){
+  body{font-size:15px;background:var(--cream)}
+  .app{width:100%;max-width:none;min-height:100svh;box-shadow:none}
+  header{padding:15px 16px 10px}
+  .logo{font-size:29px}
+  .sub{font-size:12px}
+  main{padding:0 14px calc(94px + env(safe-area-inset-bottom))}
+  .title{font-size:28px;margin:14px 0 12px}
+  .desc{font-size:14px;line-height:1.65}
+  .card{padding:18px;border-radius:20px;margin:10px 0}
+  .hello strong{font-size:21px}
+  .hero{padding:18px 12px;min-height:335px;border-radius:24px}
+  .tree{font-size:108px;margin:24px 0 6px}
+  .tree-name{font-size:22px}
+  .stats{gap:7px;margin-top:16px}
+  .stat{padding:13px 4px;border-radius:14px}
+  .stat b{font-size:21px}
+  .stat span{font-size:12px}
+  .actions{gap:9px}
+  .action{padding:15px 13px;font-size:15px;line-height:1.45;border-radius:17px}
+  .action small{font-size:12px;line-height:1.4}
+  input,textarea,select{font-size:16px;padding:14px;min-height:48px}
+  textarea{min-height:130px}
+  .field{margin:12px 0}
+  .field label{font-size:13px;margin-bottom:7px}
+  .btn{font-size:16px;padding:15px;min-height:50px}
+  .remember-login{font-size:13px}
+  .nav{width:100%;padding:8px 4px calc(9px + env(safe-area-inset-bottom))}
+  .nav button{font-size:12px}
+  .nav span{font-size:24px}
+  .booktitle{font-size:13px}
+  .author{font-size:12px}
+  .quote{padding:17px}
+  .quote p{font-size:15px;line-height:1.75}
+  .quote small{font-size:12px}
+  .banner{padding:17px;font-size:15px;line-height:1.55}
+  .banner small{font-size:13px}
+  .activity-section h3{font-size:19px}
+  .activity-empty{font-size:13px;line-height:1.55}
+  .activity-date{font-size:12px}
+  .forest-grid{gap:7px}
+  .forest-card{padding:10px 6px}
+  .forest-tree{font-size:42px}
+  .forest-num{font-size:11px}
+  .forest-name{font-size:13px}
+  .forest-books{font-size:11px}
+  .choice .big{font-size:48px}
+  .choice b{font-size:14px}
+}
+
+@media(min-width:700px){.app{margin:20px auto;border-radius:30px;overflow:hidden}}
+</style>
+</head>
+<body>
+<div class="app">
+<div id="inappBanner">⚠️ <b>카카오톡 안에서 열면 화면이 작게 보일 수 있어요.</b><br>오른쪽 아래 <b>⋯(더보기)</b> 메뉴 → <b>다른 브라우저로 열기</b>를 눌러주세요.</div>
+<header><div><div class="logo">책심 🌱</div><div class="sub">읽고, 기록하고, 나누는 독서 공간</div></div><button class="iconbtn" onclick="goBack()" aria-label="뒤로가기">↩</button></header>
+
+<main>
+<section id="login" class="screen active">
+  <div class="card">
+    <div style="font-size:104px;text-align:center;margin-bottom:6px">🌱</div>
+    <h1 style="text-align:center;font:48px Jua;margin-bottom:12px">책심에 들어와요!</h1>
+    <p class="desc" style="text-align:center;font-size:16.5px;margin-bottom:10px">학년·반·번호·이름으로 나의 책나무를 찾아보세요.</p>
+    <div class="row"><div class="field"><label>학년</label><input id="lg" type="number" min="1" max="3"></div><div class="field"><label>반</label><input id="lc" type="number"></div><div class="field"><label>번호</label><input id="ln" type="number"></div></div>
+    <div class="field"><label>이름</label><input id="lname"></div>
+    <div class="field" id="pwField"><label>비밀번호</label><input id="lpw" type="password" placeholder="설정한 비밀번호"></div>
+    <label class="remember-login"><input id="rememberLogin" type="checkbox"> 이 기기에서 자동 로그인</label>
+    <button class="btn" onclick="login()">책심 들어가기 🌿</button>
+    <p class="desc" style="margin:12px 0 0">처음이라면 비밀번호를 설정할 수 있어요.</p>
+    <button class="btn secondary" style="margin-top:8px" onclick="show('teacher')">교사용 관리</button>
+  </div>
+</section>
+
+<section id="home" class="screen">
+  <div id="homeContent"></div>
+</section>
+
+<section id="books" class="screen">
+  <div class="sectionhead"><h1 class="title">📚 독서 기록</h1><button class="link" onclick="show('addBook')">+ 기록하기</button></div>
+  <p class="desc">읽은 책을 차곡차곡 남겨보세요. 책 3권마다 책심 1개가 자라요.</p>
+  <div id="bookList" class="bookgrid"></div>
+</section>
+
+<section id="addBook" class="screen">
+  <h1 class="title">📖 책 기록하기</h1>
+  <div class="card">
+    <div class="field"><label>책 제목 *</label><input id="bt" placeholder="예: 아몬드"></div>
+    <div class="field"><label>작가 *</label><input id="ba" placeholder="예: 손원평"></div>
+    <div class="field"><label>읽은 날짜</label><input id="bd" type="date"></div>
+    <div class="field"><label>한 줄 감상 * <span id="reviewCount">0자</span></label><textarea id="br" oninput="countReview()" placeholder="공백 제외 30자 이상으로 기록해 주세요."></textarea></div>
+    <button class="btn" onclick="saveBook()">독서 기록 저장 🌱</button>
+    <button class="btn secondary" style="margin-top:8px" onclick="show('books')">돌아가기</button>
+  </div>
+</section>
+
+<section id="quote" class="screen">
+  <h1 class="title">🌿 명문장 채집가</h1>
+  <div id="quoteStatus" class="message"></div>
+  <div class="card">
+    <p class="desc">책에서 발견한 문장을 모아보세요. <b>일주일에 2번</b> 참여할 수 있고, 참여할 때마다 책심 1개를 얻어요.</p>
+    <div class="field"><label>책 제목 *</label><input id="qt"></div>
+    <div class="field"><label>작가</label><input id="qa"></div>
+    <div class="field"><label>마음에 남은 문장 *</label><textarea id="qq" placeholder="공백 제외 10자 이상"></textarea></div>
+    <div class="field"><label>이 문장을 추천하는 이유</label><textarea id="qr"></textarea></div>
+    <button class="btn" onclick="saveQuote()">문장 채집하기 💚</button>
+  </div>
+  <div id="quoteList"></div>
+</section>
+
+<section id="story" class="screen">
+  <h1 class="title">💌 책은 사연을 싣고</h1>
+  <div class="banner pink"><b>한 달에 한 번, 마음을 담아 신청해 보세요.</b><br><small>선정된 사연에는 실제 책을 선물해 드려요. 🎁</small></div>
+  <div id="storyStatus" class="message"></div>
+  <div class="card">
+    <label style="font-weight:800;font-size:13px">① 받는 사람</label>
+    <div class="row"><div class="field"><label>반</label><input id="storyToClass" type="number" min="1"></div><div class="field"><label>번호</label><input id="storyToNumber" type="number" min="1"></div><div class="field"><label>이름</label><input id="storyToName"></div></div>
+    <label style="font-weight:800;font-size:13px;display:block;margin-top:12px">② 사연</label>
+    <div class="field"><textarea id="story" placeholder="누구에게 어떤 책을 선물하고 싶은지 마음을 담아 써 주세요. 공백 제외 30자 이상"></textarea></div>
+    <button class="btn pink" onclick="saveStory()">사연 신청하기 💌</button>
+  </div>
+</section>
+
+<section id="recommend" class="screen">
+  <h1 class="title">🌟 이달의 추천 책</h1>
+  <p class="desc">선생님들이 추천하는 책을 만나보세요.</p>
+  <div id="recList"></div>
+</section>
+
+<section id="events" class="screen">
+  <h1 class="title">🎉 책심 활동</h1>
+  <p class="desc">지금 진행 중인 활동부터 앞으로 만날 활동까지 한눈에 볼 수 있어요.</p>
+  <div id="eventList"></div>
+</section>
+
+<section id="setupPassword" class="screen">
+  <h1 class="title">🔐 첫 비밀번호 설정</h1>
+  <div class="card">
+    <p class="desc">처음 로그인하는 학생이에요.<br>앞으로 사용할 비밀번호를 설정해 주세요.</p>
+    <div class="field"><label>새 비밀번호</label><input id="newPw" type="password" placeholder="영문/숫자 4~20자"></div>
+    <div class="field"><label>새 비밀번호 확인</label><input id="newPw2" type="password"></div>
+    <button class="btn" onclick="setPw()">비밀번호 저장</button>
+  </div>
+</section>
+
+<section id="setup" class="screen">
+  <h1 class="title">🌱 나의 책나무 만들기</h1>
+  <p class="desc">처음 한 번만 나만의 나무를 골라주세요.</p>
+  <div class="card">
+    <label style="font-weight:800;font-size:13px">① 나무를 골라요</label>
+    <div class="treechoices" id="treeChoices"></div>
+    <label style="font-weight:800;font-size:13px;display:block;margin-top:18px">② 화분을 골라요</label>
+    <div class="treechoices" id="potChoices"></div>
+    <div class="field"><label>③ 나무 이름</label><input id="treeName" maxlength="12" placeholder="예: 지은이의 책나무"></div>
+    <button class="btn" onclick="saveTree()">나무 심기 🌳</button>
+  </div>
+</section>
+
+<section id="teacher" class="screen">
+  <h1 class="title">🧑‍🏫 교사용 관리</h1>
+  <div id="teacherLogin">
+    <div class="card">
+      <p class="desc">관리자 코드를 입력하면 학생 현황과 추천도서를 관리할 수 있어요.</p>
+      <input id="adminCode" type="password" placeholder="관리자 코드">
+      <button class="btn" style="margin-top:10px" onclick="adminLogin()">관리 화면 열기</button>
+      <button class="btn secondary" style="margin-top:8px" onclick="show('login')">학생 로그인으로</button>
+    </div>
+  </div>
+  <div id="teacherContent" class="hide"></div>
+</section>
+</main>
+
+<div id="nav" class="nav hide">
+ <button id="nHome" onclick="show('home')"><span>🌳</span>홈</button>
+ <button id="nBooks" onclick="show('books')"><span>📚</span>기록</button>
+ <button id="nQuote" onclick="show('quote')"><span>🌿</span>활동</button>
+ <button id="nMore" onclick="show('events')"><span>✨</span>더보기</button>
+</div>
+</div>
+
+<script>
+/* =========================================================
+   ⚠️ 배포 후 이 값을 Apps Script 웹앱 주소(/exec로 끝나는 주소)로 바꿔주세요.
+   Apps Script 편집기 → 배포 → 배포 관리 에서 확인할 수 있어요.
+========================================================= */
+const API_URL = 'https://script.google.com/macros/s/AKfycbxIhS1pzwVhEE6UGrPtvSrbVvjCq-X8ca2DuxVbSeAGPQdRaJG7iS_r5O-NTVNo4N38qA/exec';
+
+/* google.script.run과 똑같은 방식으로 쓸 수 있는 대체 구현.
+   기존의 google.script.run.withSuccessHandler(...).withFailureHandler(...).함수이름(인자...)
+   코드를 하나도 바꾸지 않고, 대신 fetch로 Apps Script 웹앱과 통신합니다.
+   이렇게 하면 화면(index.html)을 Apps Script 바깥의 다른 곳에 올려도 그대로 동작해요. */
+const google = (function(){
+ function buildRunner(successFn, failFn){
+  return new Proxy({}, {
+   get(target, action){
+    if(action === 'withSuccessHandler') return function(fn){ return buildRunner(fn, failFn); };
+    if(action === 'withFailureHandler') return function(fn){ return buildRunner(successFn, fn); };
+    return function(){
+     const args = [].slice.call(arguments);
+     fetch(API_URL, {
+      method: 'POST',
+      headers: {'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({action: action, args: args})
+     })
+     .then(function(r){ return r.json(); })
+     .then(function(result){ if(successFn) successFn(result); })
+     .catch(function(err){ if(failFn) failFn(err); else console.error(err); });
+    };
+   }
+  });
+ }
+ return { script: { run: buildRunner(null, null) } };
+})();
+
+(function(){
+ try{
+  const ua = navigator.userAgent || '';
+  const isInApp = /KAKAOTALK|NAVER\(inapp/i.test(ua) || (/Line\//i.test(ua)) || (/FBAN|FBAV|Instagram/i.test(ua));
+  if(isInApp){
+   const b = document.getElementById('inappBanner');
+   if(b) b.style.display = 'block';
+  }
+ }catch(e){}
+})();
+if(API_URL.indexOf('PUT_YOUR_APPS_SCRIPT_EXEC_URL_HERE') >= 0){
+ document.addEventListener('DOMContentLoaded', function(){
+  alert('설정이 필요해요: index.html 맨 위쪽의 API_URL 값을 실제 Apps Script 배포 주소(/exec)로 바꿔주세요.');
+ });
+}
+let me=null, data=null, adminCode='';
+let screenHistory=[];
+const trees=[['green','🌳','초록나무'],['flower','🌸','꽃나무'],['fruit','🍎','열매나무'],['forest','🌲','숲나무']];
+const pots=[['basic','🪴','기본 화분'],['basket','🧺','바구니'],['ceramic','🏺','도자기 화분'],['book','📚','책 화분']];
+function show(id, addHistory=true){
+ const current = document.querySelector('.screen.active');
+ const currentId = current ? current.id : '';
+ if(addHistory && currentId && currentId !== id){
+  screenHistory.push(currentId);
+ }
+ showScreen(id);
+}
+
+function showScreen(id){
+ document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
+ document.getElementById(id).classList.add('active');
+ if(me) document.getElementById('nav').classList.remove('hide'); else document.getElementById('nav').classList.add('hide');
+ document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));
+ const map={home:'nHome',books:'nBooks',quote:'nQuote',story:'nQuote',recommend:'nMore',events:'nMore',addBook:'nBooks',setup:'nHome'};
+ if(map[id]) document.getElementById(map[id]).classList.add('active');
+ if(id==='home'&&data) renderHome();
+ if(id==='books'&&data) renderBooks();
+ if(id==='quote'&&data) renderQuotes();
+ if(id==='recommend'&&data) renderRecs();
+ if(id==='events'&&data) renderEvents();
+ if(id==='story'&&data) renderStory();
+}
+
+function goBack(){
+ if(screenHistory.length===0){
+  return;
+ }
+ const previous = screenHistory.pop();
+ showScreen(previous);
+}
+function val(id){return document.getElementById(id).value.trim()}
+function onFail(e){ alert('오류가 발생했어요: ' + (e && e.message ? e.message : e)); }
+function login(){
+ const g=val('lg'),c=val('lc'),n=val('ln'),name=val('lname'),pw=val('lpw');
+ if(!g||!c||!n||!name){alert('학년·반·번호·이름을 모두 입력해 주세요.');return}
+ document.querySelector('#login .btn').disabled=true;
+ google.script.run.withSuccessHandler(r=>{
+  document.querySelector('#login .btn').disabled=false;
+  if(!r.ok){alert(r.message);return}
+  me=r.student;
+  if(r.firstLogin){ showSetupPassword(); return; }
+  data=r.dashboard;
+  if(document.getElementById('rememberLogin') && document.getElementById('rememberLogin').checked){
+   localStorage.setItem('booksimLogin',JSON.stringify({grade:g,cls:c,num:n,name:name,password:pw}));
+  }
+  afterLogin();
+ }).withFailureHandler(e=>{document.querySelector('#login .btn').disabled=false;alert('오류가 발생했어요: '+e.message)}).loginStudent(g,c,n,name,pw);
+}
+function showSetupPassword(){
+ showScreen('setupPassword');
+}
+function setPw(){
+ if(val('newPw')!==val('newPw2')){alert('비밀번호가 서로 달라요.');return}
+ if(val('newPw').length<4){alert('비밀번호는 4자 이상 입력해 주세요.');return}
+ google.script.run.withSuccessHandler(r=>{
+  if(!r.ok){alert(r.message);return}
+  data=r.dashboard;
+  afterLogin();
+ }).withFailureHandler(onFail).setFirstPassword(me.id,val('newPw'));
+}
+function afterLogin(){
+ screenHistory=[];
+ document.getElementById('nav').classList.remove('hide');
+ if(!me.treeType||!me.potType||!me.treeName){renderTreeSetup();show('setup');return}
+ show('home');
+}
+function renderHome(){
+ const st=data.stage, treeEmoji=me.treeType==='flower'?'🌸':me.treeType==='fruit'?'🍎':me.treeType==='forest'?'🌲':'🌳'; const potClass=me.potType==='책 화분'?'book':me.potType==='바구니'?'basket':me.potType==='도자기'?'ceramic':'';
+ document.getElementById('homeContent').innerHTML=`
+ <div class="hello" style="margin:10px 2px"><div class="desc">오늘도 책과 함께 자라요 🌱</div><strong>${esc(me.name)}님, 안녕!</strong></div>
+ <div class="hero">
+   <div class="tree">${treeEmoji}</div><div class="pot ${potClass}"></div>
+   <div class="tree-name">${esc(me.treeName||'나의 책나무')}</div>
+   <div class="tag">${st.emoji} ${st.title}</div>
+   <div class="stats"><div class="stat"><b class="point">💗 ${data.point}</b><span>책심</span></div><div class="stat"><b>📚 ${data.bookCount}</b><span>읽은 책</span></div><div class="stat"><b>🌿 ${data.quoteCount}</b><span>채집 문장</span></div></div>
+ </div>
+ <div class="card"><div style="font-weight:800">💧 오늘은 물을 줬나요?</div><p class="desc" id="waterMsg" style="margin:5px 0 10px">나무가 물을 기다리고 있어요!</p><button class="btn secondary" id="waterBtn" onclick="waterTree()">물 주기 💧</button></div>
+ <div class="actions">
+  <button class="action" onclick="show('books')">📚 독서 기록<small>읽은 책을 남겨요</small></button>
+  <button class="action" onclick="show('quote')">🌿 명문장 채집가<small>주 2회 · 책심 1</small></button>
+  <button class="action" onclick="show('story')">💌 책은 사연을 싣고<small>월 1회 · 책심 1</small></button>
+  <button class="action" onclick="show('recommend')">🌟 이달의 추천 책<small>선생님 추천</small></button>
+ </div>
+ <div class="sectionhead"><h2>🎉 진행 중인 활동</h2><button class="link" onclick="show('events')">더보기</button></div>
+ <div id="homeCurrentEvents"></div>
+ <div class="sectionhead"><h2>🌳 우리 반 나무 숲</h2><button class="link" onclick="renderClassForest()">새로고침</button></div>
+ <div id="classForest" class="forest-grid"><div class="card"><p class="desc">우리 반 친구들의 책나무를 불러오는 중이에요.</p></div></div>`;
+ renderHomeCurrentEvents();
+ checkWater();
+}
+function renderClassForest(){
+  const el=document.getElementById('classForest');
+  if(!el || !me) return;
+  el.innerHTML='<div class="card forest-empty"><p class="desc">우리 반 나무 숲을 불러오는 중이에요. 🌱</p></div>';
+  google.script.run
+    .withSuccessHandler(function(list){
+      if(!list || !list.length){
+        el.innerHTML='<div class="card forest-empty"><p class="desc">아직 우리 반 나무 숲에 나무가 없어요.</p></div>';
+        return;
+      }
+      el.innerHTML=list.map(function(x){
+        const mine=String(x.name)===String(me.name) && String(x.num)===String(me.num);
+        return '<div class="forest-card"'+(mine?' style="box-shadow:0 0 0 2px #55a36c inset;"':'')+'>'+
+          '<div class="forest-tree">'+escapeHtml(x.tree)+'</div>'+
+          '<div class="forest-num">'+escapeHtml(String(x.num))+'번</div>'+
+          '<div class="forest-name">'+escapeHtml(x.treeName||x.name+'의 책나무')+'</div>'+
+          '<div class="forest-books">📚 '+String(x.books)+'권 · 💗 '+String(x.point)+'</div>'+
+        '</div>';
+      }).join('');
+    })
+    .withFailureHandler(function(error){
+      el.innerHTML='<div class="card forest-empty"><p class="desc">우리 반 나무 숲을 불러오지 못했어요.</p></div>';
+    })
+    .getClassForest(me.grade, me.cls);
+}
+
+function tryAutoLogin(){
+ try{
+  const saved=localStorage.getItem('booksimLogin'); if(!saved)return;
+  const x=JSON.parse(saved); if(!x||!x.grade||!x.cls||!x.num||!x.name||!x.password)return;
+  google.script.run.withSuccessHandler(function(r){
+   if(!r||!r.ok||r.firstLogin)return;
+   me=r.student; data=r.dashboard; afterLogin();
+  }).withFailureHandler(function(){}).loginStudent(x.grade,x.cls,x.num,x.name,x.password);
+ }catch(e){}
+}
+
+function renderTreeSetup(){
+ document.getElementById('treeChoices').innerHTML=trees.map((x,i)=>`<button class="choice" data-type="${x[0]}" onclick="pick('tree',this)"><div class="big">${x[1]}</div><b>${x[2]}</b></button>`).join('');
+ document.getElementById('potChoices').innerHTML=pots.map(x=>`<button class="choice" data-type="${x[0]}" onclick="pick('pot',this)"><div class="big">${x[1]}</div><b>${x[2]}</b></button>`).join('');
+}
+let pickedTree='green',pickedPot='basic';
+function pick(kind,el){el.parentElement.querySelectorAll('.choice').forEach(x=>x.classList.remove('selected'));el.classList.add('selected');if(kind==='tree')pickedTree=el.dataset.type;else pickedPot=el.dataset.type}
+function saveTree(){
+ const name=val('treeName')||`${me.name}의 책나무`;
+ google.script.run.withSuccessHandler(r=>{if(!r.ok){alert(r.message);return}data=r.dashboard;me=data.me;show('home')}).withFailureHandler(onFail).saveTree(me.id,pickedTree,pickedPot,name);
+}
+function waterTree(){
+ const key='booksim-water-'+me.grade+'-'+me.cls+'-'+me.num;
+ localStorage.setItem(key,new Date().toDateString());checkWater();
+}
+function checkWater(){
+ const key='booksim-water-'+me.grade+'-'+me.cls+'-'+me.num;
+ const done=localStorage.getItem(key)===new Date().toDateString();
+ const b=document.getElementById('waterBtn'),m=document.getElementById('waterMsg');
+ if(!b)return;
+ b.disabled=done;b.textContent=done?'오늘은 물을 줬어요 💚':'물 주기 💧';m.textContent=done?'나무가 촉촉하게 잘 자라고 있어요!':'나무가 물을 기다리고 있어요!';
+}
+function renderBooks(){
+ const el=document.getElementById('bookList');
+ if(!data||!data.books||!data.books.length){
+  el.innerHTML='<div class="card" style="grid-column:1/-1;text-align:center;padding:35px">아직 기록한 책이 없어요.<br>첫 번째 책을 심어볼까요? 🌱</div>';return;
+ }
+ el.innerHTML=data.books.map(b=>`<div class="book">
+   <div class="cover">${b.coverUrl?`<img src="${esc(b.coverUrl)}" alt="책 표지" onerror="this.style.display='none'">`:'📕'}</div>
+   <div class="bookinfo">
+    <div class="booktitle">${esc(b.title)}</div>
+    <div class="author">${esc(b.author)}</div>
+    <div class="author">📅 ${esc(b.readDate||'')}</div>
+    <p style="font-size:11px;line-height:1.5;margin:7px 0;color:#556158">${esc(b.review||'')}</p>
+    <div style="display:flex;gap:5px">
+      <button class="btn secondary" style="padding:7px;font-size:11px" onclick="editBook('${esc(b.recordId)}')">✏️ 수정</button>
+      <button class="btn" style="padding:7px;font-size:11px;background:#f3eeee;color:#9a5555" onclick="removeBook('${esc(b.recordId)}')">🗑️</button>
+    </div>
+   </div>
+  </div>`).join('');
+}
+function removeBook(recordId){
+ if(!confirm('이 독서 기록을 삭제할까요?\n\n읽은 책 수와 책심이 다시 계산돼요.'))return;
+ google.script.run.withSuccessHandler(r=>{
+  if(!r||!r.ok){alert((r&&r.message)||'삭제에 실패했어요.');return}
+  data=r.dashboard;renderBooks();renderHome();alert('독서 기록을 삭제했어요. 🗑️');
+ }).withFailureHandler(e=>alert('삭제 중 오류가 발생했어요.\n\n'+(e.message||e))).deleteBook(me.id,recordId);
+}
+function editBook(recordId){
+ const b=(data.books||[]).find(x=>String(x.recordId)===String(recordId));
+ if(!b){alert('수정할 기록을 찾을 수 없어요.');return;}
+ document.getElementById('bt').value=b.title||'';
+ document.getElementById('ba').value=b.author||'';
+ document.getElementById('bd').value=b.readDate||'';
+ document.getElementById('br').value=b.review||'';
+ countReview();
+ const btn=document.querySelector('#addBook .btn');
+ btn.textContent='수정 내용 저장하기 ✏️';
+ btn.onclick=function(){saveEditedBook(recordId)};
+ show('addBook');
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+function saveEditedBook(recordId){
+ const title=val('bt'),author=val('ba'),readDate=document.getElementById('bd').value,review=val('br');
+ if(!title||!author||!readDate){alert('책 제목·작가·읽은 날짜를 모두 입력해 주세요.');return}
+ if(review.replace(/\s/g,'').length<30){alert('한줄 감상은 공백을 제외하고 30자 이상 작성해 주세요.');return}
+ const btn=document.querySelector('#addBook .btn');btn.disabled=true;btn.textContent='수정하는 중...';
+ google.script.run.withSuccessHandler(r=>{
+  btn.disabled=false;
+  if(!r||!r.ok){alert((r&&r.message)||'수정에 실패했어요.');btn.textContent='수정 내용 저장하기 ✏️';return}
+  data=r.dashboard;clearBook();btn.textContent='독서 기록 저장 🌱';btn.onclick=function(){saveBook()};show('books');alert('독서 기록을 수정했어요! ✏️');
+ }).withFailureHandler(e=>{btn.disabled=false;btn.textContent='수정 내용 저장하기 ✏️';alert('수정 중 오류가 발생했어요.\n\n'+(e.message||e))}).updateBook(me.id,recordId,title,author,readDate,review);
+}
+function countReview(){document.getElementById('reviewCount').textContent=document.getElementById('br').value.replace(/\s/g,'').length+'자'}
+function saveBook(){
+ google.script.run.withSuccessHandler(r=>{if(!r.ok){alert(r.message);return}alert(r.message);data=r.dashboard;clearBook();show('books')}).withFailureHandler(onFail).saveBook(me.id,val('bt'),val('ba'),val('bd'),val('br'));
+}
+function clearBook(){['bt','ba','bd','br'].forEach(id=>document.getElementById(id).value='');countReview()}
+function renderQuotes(){
+ const q=data.activityStatus.quote;
+ document.getElementById('quoteStatus').innerHTML=`이번 7일 동안 <b>${q.used}/${q.max}회</b> 참여했어요. ${q.canSubmit?'지금 한 번 더 채집할 수 있어요!':'다음 참여 가능 시점을 기다려 주세요.'}`;
+ document.querySelector('#quote .btn').disabled=!q.canSubmit;
+ document.getElementById('quoteList').innerHTML=data.quotes.length?data.quotes.map(x=>`<div class="quote card"><p>${esc(x.quote)}</p><small>『${esc(x.title)}』 · ${esc(x.author)}</small></div>`).join(''):'';
+}
+function saveQuote(){
+ google.script.run.withSuccessHandler(r=>{if(!r.ok){alert(r.message);return}alert(r.message);data=r.dashboard;['qt','qa','qq','qr'].forEach(id=>document.getElementById(id).value='');renderQuotes()}).withFailureHandler(onFail).saveQuote(me.id,val('qt'),val('qa'),val('qq'),val('qr'));
+}
+function saveStory(){
+ const toClass=val('storyToClass'),toNumber=val('storyToNumber'),toName=val('storyToName');
+ if(!toClass||!toNumber||!toName){alert('받는 사람의 반·번호·이름을 모두 입력해 주세요.');return}
+ google.script.run.withSuccessHandler(r=>{if(!r.ok){alert(r.message);return}alert(r.message);data=r.dashboard;['storyToClass','storyToNumber','storyToName','story'].forEach(id=>document.getElementById(id).value='');renderStory()}).withFailureHandler(onFail).saveStory(me.id,toClass,toNumber,toName,val('story'));
+}
+function renderStory(){
+ const s=data.activityStatus.story;document.getElementById('storyStatus').innerHTML=s.canSubmit?'이번 달 참여 기회가 남아 있어요. 💌':'이번 달 참여를 완료했어요. 다음 달에 다시 만나요!';
+ document.querySelector('#story .btn').disabled=!s.canSubmit;
+}
+function renderRecs(){
+ document.getElementById('recList').innerHTML=data.recommendations.length?data.recommendations.map(x=>`<div class="card"><div class="row"><img class="cover" style="width:85px;flex:none" src="${x.표지URL||'https://via.placeholder.com/100x150?text=BOOK'}"><div><b>${esc(x.책제목)}</b><div class="author">${esc(x.작가)}</div><p style="font-size:12px;margin-top:10px">${esc(x.추천이유||'')}</p><span class="tag">👩‍🏫 ${esc(x.추천교사||'선생님')}</span><span class="tag">${esc(x.교과||'')}</span>${x.추천월?`<span class="tag">📅 ${esc(x.추천월)}</span>`:''}</div></div></div>`).join(''):'<div class="card">아직 등록된 추천도서가 없어요.</div>';
+}
+function renderEvents(){
+ const el=document.getElementById('eventList'); if(!el)return;
+ const groups=[
+  ['current','🔥 진행 중인 활동','지금 참여할 수 있어요.'],
+  ['upcoming','🌱 진행 예정 활동','조금만 기다리면 만날 수 있어요.'],
+  ['past','📚 지나간 활동','함께했던 활동을 기록해 두었어요.']
+ ];
+ const fmt=x=>x.시작일?`${x.시작일}${x.종료일?' ~ '+x.종료일:''}`:'일정 미정';
+ el.innerHTML=groups.map(([key,title,desc])=>{
+   const arr=(data.events&&data.events[key])||[];
+   if(!arr.length)return `<div class="activity-section"><div class="activity-badge">${title}</div><div class="activity-empty">${desc}<br>아직 등록된 활동이 없어요.</div></div>`;
+   return `<div class="activity-section"><div class="activity-badge">${title}</div>`+arr.map(x=>{
+     const btn=x.링크?`<a class="btn" style="display:block;text-align:center;text-decoration:none;margin-top:10px" href="${esc(x.링크)}" target="_blank" rel="noopener">${esc(x.버튼문구||'자세히 보기')}</a>`:'';
+     return `<div class="card activity-card"><div style="font-size:24px">${esc(x.아이콘||'🎉')}</div><h3 style="margin:5px 0">${esc(x.제목)}</h3><p class="desc">${esc(x.설명)}</p><div class="activity-date">📅 ${fmt(x)}</div>${btn}</div>`;
+   }).join('')+`</div>`;
+ }).join('');
+}
+function renderHomeCurrentEvents(){
+ const el=document.getElementById('homeCurrentEvents'); if(!el)return;
+ const arr=(data.events&&data.events.current)||[];
+ el.innerHTML=arr.length?arr.slice(0,2).map(x=>`<div class="banner pizza"><b>${esc(x.아이콘||'🎉')} ${esc(x.제목)}</b><br><small>${esc(x.설명)}</small></div>`).join(''):'<div class="activity-empty">현재 진행 중인 활동이 없어요.</div>';
+}
+function adminLogin(){
+ adminCode=val('adminCode');if(!adminCode){alert('관리자 코드를 입력해 주세요.');return}
+ const btn=document.querySelector('#teacherLogin .btn'); if(btn)btn.disabled=true;
+ google.script.run.withSuccessHandler(r=>{
+  if(btn)btn.disabled=false;
+  if(!r.ok){alert(r.message);return}
+  document.getElementById('teacherLogin').classList.add('hide');renderAdmin(r);
+ }).withFailureHandler(e=>{if(btn)btn.disabled=false;onFail(e);}).getAdminDashboard(adminCode);
+}
+function renderAdmin(r){
+ document.getElementById('teacherContent').classList.remove('hide');
+ document.getElementById('teacherContent').innerHTML=`<div class="card"><h3>📊 학생 현황</h3><p class="desc">전체 학생 ${r.students.length}명 · 명문장 ${r.quoteCount}개 · 활동 기록 ${r.pointCount}개</p><div class="adminbox"><table><tr><th>학년</th><th>반</th><th>번호</th><th>이름</th><th>독서</th><th>책심</th><th>나무</th></tr>${r.students.map(s=>`<tr><td>${s.grade}</td><td>${s.cls}</td><td>${s.num}</td><td>${esc(s.name)}</td><td>${s.books}</td><td>${s.point}</td><td>${esc(s.tree)}</td></tr>`).join('')}</table></div></div>
+ <div class="card"><h3>🌟 이달의 추천 책 등록</h3><div class="field"><label>추천월</label><input id="rmonth" type="month"></div><div class="field"><label>책 제목</label><input id="rt"></div><div class="field"><label>작가</label><input id="ra"></div><div class="field"><label>ISBN</label><input id="ri"></div><div class="field"><label>표지 URL (선택)</label><input id="rc"></div><div class="row"><input id="rteacher" placeholder="추천교사"><input id="rsubject" placeholder="교과"></div><div class="field"><textarea id="rreason" placeholder="추천 이유"></textarea></div><button class="btn" onclick="saveRec()">추천도서 게시</button></div>
+ <div class="card"><h3>🎉 행사 관리</h3><input id="eventId" type="hidden"><p class="desc" style="margin:0 0 8px">시작일·종료일을 비워두면 '일정 미정'으로 표시돼요.</p><div class="row"><div class="field"><label>시작일 (선택)</label><input id="eventStart" type="date"></div><div class="field"><label>종료일 (선택)</label><input id="eventEnd" type="date"></div></div><div class="row"><input id="eventIcon" placeholder="아이콘 예: 🍕"><input id="eventVisible" placeholder="게시 또는 숨김" value="게시"></div><div class="field"><input id="eventTitle" placeholder="행사 제목"></div><div class="field"><textarea id="eventDesc" placeholder="행사 설명"></textarea></div><div class="row"><input id="eventButton" placeholder="버튼 문구"><input id="eventLink" placeholder="링크 (선택)"></div><button class="btn" onclick="saveEventAdmin()">행사 저장</button><button class="btn secondary" style="margin-top:8px" onclick="clearEventForm()">새 행사 입력</button><div id="adminEventList" style="margin-top:12px"></div></div>
+ <div class="card"><h3>🔐 학생 비밀번호 초기화</h3><div class="row"><input id="rg" placeholder="학년"><input id="rcl" placeholder="반"><input id="rn" placeholder="번호"></div><div class="field"><input id="rname" placeholder="이름"></div><button class="btn yellow" onclick="resetPw()">비밀번호 초기화</button></div>`;
+ document.getElementById('rmonth').value=new Date().toISOString().slice(0,7);
+ renderAdminEvents(r.events||[]);
+}
+function renderAdminEvents(events){
+ const el=document.getElementById('adminEventList'); if(!el)return;
+ if(!events.length){el.innerHTML='<div class="activity-empty">등록된 행사가 없어요.</div>';return;}
+ el.innerHTML=events.map(e=>{const period=e.시작일?`${esc(e.시작일)} ~ ${esc(e.종료일||'')}`:'일정 미정';return `<div class="message" style="cursor:pointer" onclick='loadEventAdmin(${JSON.stringify(e).replace(/'/g,"&#39;")})'><b>${esc(e.아이콘||'🎉')} ${esc(e.제목)}</b><br><small>${period} · ${esc(e.게시여부||'게시')}</small></div>`}).join('');
+}
+function loadEventAdmin(e){
+ document.getElementById('eventId').value=e.ID||'';document.getElementById('eventStart').value=e.시작일||'';document.getElementById('eventEnd').value=e.종료일||'';document.getElementById('eventIcon').value=e.아이콘||'';document.getElementById('eventVisible').value=e.게시여부||'게시';document.getElementById('eventTitle').value=e.제목||'';document.getElementById('eventDesc').value=e.설명||'';document.getElementById('eventButton').value=e.버튼문구||'';document.getElementById('eventLink').value=e.링크||'';window.scrollTo({top:document.getElementById('teacher').offsetTop,behavior:'smooth'});
+}
+function clearEventForm(){['eventId','eventStart','eventEnd','eventIcon','eventTitle','eventDesc','eventButton','eventLink'].forEach(id=>document.getElementById(id).value='');document.getElementById('eventVisible').value='게시';}
+function saveEventAdmin(){
+ google.script.run.withSuccessHandler(r=>{alert(r.message);if(r.ok){google.script.run.withSuccessHandler(renderAdmin).withFailureHandler(onFail).getAdminDashboard(adminCode)}}).withFailureHandler(onFail).saveEvent(adminCode,val('eventId'),val('eventStart'),val('eventEnd'),val('eventIcon'),val('eventTitle'),val('eventDesc'),val('eventButton'),val('eventLink'),val('eventVisible'));
+}
+function saveRec(){
+ google.script.run.withSuccessHandler(r=>{alert(r.message);if(r.ok){rebuildDataForAdmin()}}).withFailureHandler(onFail).saveRecommendation(adminCode,val('rt'),val('ra'),val('ri'),val('rc'),val('rteacher'),val('rsubject'),val('rreason'),val('rmonth'));
+}
+function rebuildDataForAdmin(){google.script.run.withSuccessHandler(renderAdmin).withFailureHandler(onFail).getAdminDashboard(adminCode)}
+function resetPw(){
+ google.script.run.withSuccessHandler(r=>alert(r.message)).withFailureHandler(onFail).resetStudentPassword(val('rg'),val('rcl'),val('rn'),val('rname'),adminCode);
+}
+function logout(){me=null;data=null;adminCode='';screenHistory=[];document.getElementById('nav').classList.add('hide');show('login',false)}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+renderTreeSetup();
+tryAutoLogin();
+</script>
+</body>
+</html>

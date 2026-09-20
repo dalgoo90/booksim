@@ -299,7 +299,7 @@ const google = (function(){
      })
      .then(function(r){ return r.json(); })
      .then(function(result){ if(successFn) successFn(result); })
-     .catch(function(err){ if(failFn) failFn(err); else console.error(err); });
+     .catch(function(err){ console.error('['+action+'] 요청 실패:', err); if(failFn) failFn(err); });
     };
    }
   });
@@ -484,13 +484,17 @@ function renderHome(){
  <div id="classForest" class="forest-grid"><div class="card"><p class="desc">우리 반 친구들의 책나무를 불러오는 중이에요.</p></div></div>`;
  renderHomeCurrentEvents();
  checkWater();
+ renderClassForest();
 }
+let _forestRequestSeq=0;
 function renderClassForest(){
   const el=document.getElementById('classForest');
   if(!el || !me) return;
   el.innerHTML='<div class="card forest-empty"><p class="desc">우리 반 나무 숲을 불러오는 중이에요. 🌱</p></div>';
+  const myRequest=++_forestRequestSeq;
   google.script.run
     .withSuccessHandler(function(list){
+      if(myRequest!==_forestRequestSeq) return; /* 이 요청보다 나중에 시작된 요청이 이미 있으면 그 결과만 반영 */
       if(!list || !list.length){
         el.innerHTML='<div class="card forest-empty"><p class="desc">아직 우리 반 나무 숲에 나무가 없어요.</p></div>';
         return;
@@ -508,6 +512,8 @@ function renderClassForest(){
       }).join('');
     })
     .withFailureHandler(function(error){
+      if(myRequest!==_forestRequestSeq) return; /* 이 요청보다 나중에 시작된 요청이 이미 있으면 무시 */
+      console.error('우리 반 나무 숲 불러오기 실패:', error);
       el.innerHTML='<div class="card forest-empty"><p class="desc">우리 반 나무 숲을 불러오지 못했어요.</p></div>';
     })
     .getClassForest(me.grade, me.cls);

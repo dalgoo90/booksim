@@ -196,6 +196,7 @@ input,textarea,select{width:100%;padding:13px;border:1px solid #dce4d9;border-ra
 <section id="recommend" class="screen">
   <h1 class="title">🌟 이달의 추천 책</h1>
   <p class="desc">선생님들이 추천하는 책을 만나보세요.</p>
+  <div id="recTheme"></div>
   <div id="recList"></div>
 </section>
 
@@ -676,6 +677,15 @@ function renderStory(){
  document.querySelector('#story .btn').disabled=!s.canSubmit;
 }
 function renderRecs(){
+ const theme=data.recommendationTheme;
+ const themeEl=document.getElementById('recTheme');
+ if(themeEl){
+  themeEl.innerHTML=theme?`<div class="card" style="background:#eef8ee;border:1px solid #cfe6cf;margin-bottom:14px">
+    <div style="font-size:12px;color:#4f9b68;font-weight:800;margin-bottom:4px">📖 이달의 테마</div>
+    <div style="font-size:16px;font-weight:800;color:#344238">${esc(theme.title)}</div>
+    ${theme.description?`<p class="desc" style="margin-top:6px">${esc(theme.description)}</p>`:''}
+  </div>`:'';
+ }
  document.getElementById('recList').innerHTML=data.recommendations.length?data.recommendations.map(x=>{
   const coverBox=`<div style="width:85px;height:127px;flex:none;border-radius:12px;overflow:hidden;background:#edf1e9;position:relative">
     <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:30px">📕</span>

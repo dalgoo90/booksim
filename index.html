@@ -611,7 +611,13 @@ function saveEditedBook(recordId){
 }
 function countReview(){document.getElementById('reviewCount').textContent=document.getElementById('br').value.replace(/\s/g,'').length+'자'}
 function saveBook(){
- google.script.run.withSuccessHandler(r=>{if(!r.ok){alert(r.message);return}alert(r.message);data=r.dashboard;clearBook();show('books')}).withFailureHandler(onFail).saveBook(me.id,val('bt'),val('ba'),val('bd'),val('br'));
+ const btn=document.querySelector('#addBook .btn'); if(btn.disabled)return; /* 중복 클릭 방지 */
+ const origText=btn.textContent; btn.disabled=true; btn.textContent='저장하는 중...';
+ google.script.run.withSuccessHandler(r=>{
+  btn.disabled=false; btn.textContent=origText;
+  if(!r.ok){alert(r.message);return}
+  alert(r.message);data=r.dashboard;clearBook();show('books');
+ }).withFailureHandler(e=>{btn.disabled=false;btn.textContent=origText;onFail(e)}).saveBook(me.id,val('bt'),val('ba'),val('bd'),val('br'));
 }
 function clearBook(){['bt','ba','bd','br'].forEach(id=>document.getElementById(id).value='');countReview()}
 function renderMyLoans(){
@@ -644,14 +650,26 @@ function renderQuotes(){
  document.getElementById('quoteList').innerHTML=data.quotes.length?data.quotes.map(x=>`<div class="quote card"><p>${esc(x.quote)}</p><small>『${esc(x.title)}』 · ${esc(x.author)}</small></div>`).join(''):'';
 }
 function saveQuote(){
- google.script.run.withSuccessHandler(r=>{if(!r.ok){alert(r.message);return}alert(r.message);data=r.dashboard;['qt','qa','qq','qr'].forEach(id=>document.getElementById(id).value='');renderQuotes()}).withFailureHandler(onFail).saveQuote(me.id,val('qt'),val('qa'),val('qq'),val('qr'));
+ const btn=document.querySelector('#quote .btn'); if(btn.disabled)return; /* 중복 클릭 방지 */
+ const origText=btn.textContent; btn.disabled=true; btn.textContent='저장하는 중...';
+ google.script.run.withSuccessHandler(r=>{
+  btn.disabled=false; btn.textContent=origText;
+  if(!r.ok){alert(r.message);return}
+  alert(r.message);data=r.dashboard;['qt','qa','qq','qr'].forEach(id=>document.getElementById(id).value='');renderQuotes();
+ }).withFailureHandler(e=>{btn.disabled=false;btn.textContent=origText;onFail(e)}).saveQuote(me.id,val('qt'),val('qa'),val('qq'),val('qr'));
 }
 function saveStory(){
  const toGrade=val('storyToGrade'),toClass=val('storyToClass'),toNumber=val('storyToNumber'),toName=val('storyToName');
  const bookTitle=val('storyBookTitle'),bookAuthor=val('storyBookAuthor');
  if(!toGrade||!toClass||!toNumber||!toName){alert('받는 사람의 학년·반·번호·이름을 모두 입력해 주세요.');return}
  if(!bookTitle||!bookAuthor){alert('선물하고 싶은 책 제목과 작가를 입력해 주세요.');return}
- google.script.run.withSuccessHandler(r=>{if(!r.ok){alert(r.message);return}alert(r.message);data=r.dashboard;['storyToGrade','storyToClass','storyToNumber','storyToName','storyBookTitle','storyBookAuthor','storyText'].forEach(id=>document.getElementById(id).value='');renderStory()}).withFailureHandler(onFail).saveStory(me.id,toGrade,toClass,toNumber,toName,bookTitle,bookAuthor,val('storyText'));
+ const btn=document.querySelector('#story .btn'); if(btn.disabled)return; /* 중복 클릭 방지 */
+ const origText=btn.textContent; btn.disabled=true; btn.textContent='저장하는 중...';
+ google.script.run.withSuccessHandler(r=>{
+  btn.disabled=false; btn.textContent=origText;
+  if(!r.ok){alert(r.message);return}
+  alert(r.message);data=r.dashboard;['storyToGrade','storyToClass','storyToNumber','storyToName','storyBookTitle','storyBookAuthor','storyText'].forEach(id=>document.getElementById(id).value='');renderStory();
+ }).withFailureHandler(e=>{btn.disabled=false;btn.textContent=origText;onFail(e)}).saveStory(me.id,toGrade,toClass,toNumber,toName,bookTitle,bookAuthor,val('storyText'));
 }
 function renderStory(){
  const s=data.activityStatus.story;document.getElementById('storyStatus').innerHTML=s.canSubmit?'이번 달 참여 기회가 남아 있어요. 💌':'이번 달 참여를 완료했어요. 다음 달에 다시 만나요!';

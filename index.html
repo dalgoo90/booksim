@@ -147,9 +147,17 @@ input,textarea,select{width:100%;padding:13px;border:1px solid #dce4d9;border-ra
 
 <section id="addBook" class="screen">
   <h1 class="title">📖 책 기록하기</h1>
+  <div class="card" style="background:#fff7e6;border:1px solid #f0d98c">
+    <b style="font-size:13px;color:#7a5c00">✏️ 정확하게 기록해 주세요</b>
+    <ul style="margin:8px 0 0;padding-left:18px;font-size:12px;color:#6b5a2e;line-height:1.7">
+      <li>시리즈물이면 <b>권수까지</b> 정확히 적어주세요. (예: "who 시리즈"라면 "who? 세종대왕"처럼 몇 권인지 알 수 있게)</li>
+      <li>책 제목·작가 이름의 <b>띄어쓰기와 맞춤법</b>을 한 번 더 확인해 주세요.</li>
+      <li>이 기록은 선생님이 <b>생활기록부</b>에 옮겨 적을 수도 있어요. 정확한 기록이 중요해요!</li>
+    </ul>
+  </div>
   <div class="card" id="loanPickCard" style="display:none">
     <label style="font-weight:800;font-size:13px">📕 내가 빌린 책에서 선택하기</label>
-    <p class="desc" style="margin:4px 0 10px">탭하면 제목·작가가 자동으로 채워져요.</p>
+    <p class="desc" style="margin:4px 0 10px">탭하면 제목·작가가 정확하게 자동으로 채워져요. 직접 입력하는 것보다 오타·권수 실수가 줄어드니, 목록에 있다면 여기서 골라주세요!</p>
     <div id="loanPickList"></div>
   </div>
   <div class="card">

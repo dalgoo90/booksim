@@ -2,6 +2,25 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<script>
+/* ====== 자동 업데이트 확인 (홈 화면에 설치된 앱이 예전 버전에 갇히는 문제 해결용) ======
+   애들 폰에 캐시된 예전 화면이 떠도, 이 스크립트가 조용히 최신 버전인지 확인해서
+   다르면 자동으로 최신 버전으로 새로고침해줘요. 애들은 아무것도 할 필요 없어요.
+   ⚠️ 앞으로 index.html을 수정할 때마다 아래 APP_VERSION 값과 version.json의 "v" 값을
+   똑같이 새 값으로 바꿔줘야 이 기능이 작동해요. (둘 다 안 바꾸면 업데이트 감지가 안 돼요) */
+(function(){
+  var APP_VERSION = '2026-09-26-02';
+  if (location.search.indexOf('v=') !== -1) return; // 이미 새 버전으로 넘어온 페이지면 재확인 안 함
+  fetch('version.json?t=' + Date.now(), {cache:'no-store'})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d && d.v && d.v !== APP_VERSION) {
+        location.replace(location.pathname + '?v=' + encodeURIComponent(d.v));
+      }
+    })
+    .catch(function(){});
+})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>책심</title>
 <link rel="manifest" href="manifest.json">

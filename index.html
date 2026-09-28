@@ -9,7 +9,7 @@
    ⚠️ 앞으로 index.html을 수정할 때마다 아래 APP_VERSION 값과 version.json의 "v" 값을
    똑같이 새 값으로 바꿔줘야 이 기능이 작동해요. (둘 다 안 바꾸면 업데이트 감지가 안 돼요) */
 (function(){
-  var APP_VERSION = '2026-09-26-02';
+  var APP_VERSION = '2026-09-28-01';
   if (location.search.indexOf('v=') !== -1) return; // 이미 새 버전으로 넘어온 페이지면 재확인 안 함
   fetch('version.json?t=' + Date.now(), {cache:'no-store'})
     .then(function(r){ return r.json(); })
@@ -218,6 +218,7 @@ input,textarea,select{width:100%;padding:13px;border:1px solid #dce4d9;border-ra
     <div class="field"><textarea id="storyText" placeholder="누구에게 어떤 책을 선물하고 싶은지 마음을 담아 써 주세요. 공백 제외 30자 이상"></textarea></div>
     <button class="btn pink" onclick="saveStory()">사연 신청하기 💌</button>
   </div>
+  <div id="storyList"></div>
 </section>
 
 <section id="recommend" class="screen">
@@ -357,6 +358,7 @@ if(API_URL.indexOf('PUT_YOUR_APPS_SCRIPT_EXEC_URL_HERE') >= 0){
 }
 let me=null, data=null, adminCode='';
 let screenHistory=[];
+let editingQuoteId=null, editingStoryId=null; /* 명문장/사연을 수정하는 중일 때만 채워지는 값 */
 const trees=[['green','🌳','단풍나무'],['flower','🌸','벚나무'],['fruit','🍎','사과나무'],['forest','🌲','소나무']];
 const STAGE_IMAGES={'씨앗':'tree-1.png','새싹':'tree-2.png','어린 나무':'tree-3.png','책나무':'tree-4.png','꽃나무':'tree-5.png','열매나무':'tree-6.png','나만의 책숲':'tree-7.png'};
 function stageImg_(title){return STAGE_IMAGES[title]||'';}
@@ -387,6 +389,10 @@ function show(id, addHistory=true){
 }
 
 function showScreen(id){
+ /* 명문장/사연 화면을 벗어나면, 수정 모드로 남아있지 않게 버튼을 원래대로 되돌려요.
+    (수정하러 들어갈 땐 editQuote/editStory가 id==='quote'/'story'로 들어오니 여기서 안 지워져요) */
+ if(id!=='quote'){ editingQuoteId=null; const b=document.querySelector('#quote .btn'); if(b){b.textContent='문장 채집하기 💚';b.onclick=function(){saveQuote()};} }
+ if(id!=='story'){ editingStoryId=null; const b=document.querySelector('#story .btn'); if(b){b.textContent='사연 신청하기 💌';b.onclick=function(){saveStory()};} }
  document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
  document.getElementById(id).classList.add('active');
  if(me) document.getElementById('nav').classList.remove('hide'); else document.getElementById('nav').classList.add('hide');
@@ -674,8 +680,14 @@ function pickLoan(i){
 function renderQuotes(){
  const q=data.activityStatus.quote;
  document.getElementById('quoteStatus').innerHTML=`이번 7일 동안 <b>${q.used}/${q.max}회</b> 참여했어요. ${q.canSubmit?'지금 한 번 더 채집할 수 있어요!':'다음 참여 가능 시점을 기다려 주세요.'}`;
- document.querySelector('#quote .btn').disabled=!q.canSubmit;
- document.getElementById('quoteList').innerHTML=data.quotes.length?data.quotes.map(x=>`<div class="quote card"><p>${esc(x.quote)}</p><small>『${esc(x.title)}』 · ${esc(x.author)}</small></div>`).join(''):'';
+ document.querySelector('#quote .btn').disabled=editingQuoteId?false:!q.canSubmit;
+ document.getElementById('quoteList').innerHTML=data.quotes.length?data.quotes.map(x=>`<div class="quote card">
+   <p>${esc(x.quote)}</p><small>『${esc(x.title)}』 · ${esc(x.author)}</small>
+   <div style="display:flex;gap:5px;margin-top:8px">
+     <button class="btn secondary" style="padding:7px 4px;font-size:11px;white-space:nowrap" onclick="editQuote('${esc(x.recordId)}')">✏️수정</button>
+     <button class="btn" style="padding:7px 4px;font-size:11px;white-space:nowrap;background:#f3eeee;color:#9a5555" onclick="removeQuote('${esc(x.recordId)}')">🗑️</button>
+   </div>
+  </div>`).join(''):'';
 }
 function saveQuote(){
  const btn=document.querySelector('#quote .btn'); if(btn.disabled)return; /* 중복 클릭 방지 */
@@ -685,6 +697,40 @@ function saveQuote(){
   if(!r.ok){alert(r.message);return}
   alert(r.message);data=r.dashboard;['qt','qa','qq','qr'].forEach(id=>document.getElementById(id).value='');renderQuotes();
  }).withFailureHandler(e=>{btn.disabled=false;btn.textContent=origText;onFail(e)}).saveQuote(me.id,val('qt'),val('qa'),val('qq'),val('qr'));
+}
+function editQuote(recordId){
+ const x=(data.quotes||[]).find(q=>String(q.recordId)===String(recordId));
+ if(!x){alert('수정할 기록을 찾을 수 없어요.');return;}
+ document.getElementById('qt').value=x.title||'';
+ document.getElementById('qa').value=x.author||'';
+ document.getElementById('qq').value=x.quote||'';
+ document.getElementById('qr').value=x.reason||'';
+ editingQuoteId=recordId;
+ const btn=document.querySelector('#quote .btn');
+ btn.textContent='수정 내용 저장하기 ✏️';
+ btn.onclick=function(){saveEditedQuote(recordId)};
+ show('quote');
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+function saveEditedQuote(recordId){
+ const title=val('qt'),quote=val('qq');
+ if(!title||!quote){alert('책 제목과 명문장을 입력해 주세요.');return}
+ const btn=document.querySelector('#quote .btn'); if(btn.disabled)return;
+ btn.disabled=true; btn.textContent='수정하는 중...';
+ google.script.run.withSuccessHandler(r=>{
+  btn.disabled=false;
+  if(!r||!r.ok){alert((r&&r.message)||'수정에 실패했어요.');btn.textContent='수정 내용 저장하기 ✏️';return}
+  data=r.dashboard;['qt','qa','qq','qr'].forEach(id=>document.getElementById(id).value='');
+  editingQuoteId=null;btn.textContent='문장 채집하기 💚';btn.onclick=function(){saveQuote()};
+  renderQuotes();alert('명문장을 수정했어요! ✏️');
+ }).withFailureHandler(e=>{btn.disabled=false;btn.textContent='수정 내용 저장하기 ✏️';alert('수정 중 오류가 발생했어요.\n\n'+(e.message||e))}).updateQuote(me.id,recordId,title,val('qa'),quote,val('qr'));
+}
+function removeQuote(recordId){
+ if(!confirm('이 명문장 기록을 삭제할까요?\n\n책심도 다시 계산돼요.'))return;
+ google.script.run.withSuccessHandler(r=>{
+  if(!r||!r.ok){alert((r&&r.message)||'삭제에 실패했어요.');return}
+  data=r.dashboard;renderQuotes();renderHome();alert('명문장 기록을 삭제했어요. 🗑️');
+ }).withFailureHandler(e=>alert('삭제 중 오류가 발생했어요.\n\n'+(e.message||e))).deleteQuote(me.id,recordId);
 }
 function saveStory(){
  const toGrade=val('storyToGrade'),toClass=val('storyToClass'),toNumber=val('storyToNumber'),toName=val('storyToName');
@@ -699,9 +745,58 @@ function saveStory(){
   alert(r.message);data=r.dashboard;['storyToGrade','storyToClass','storyToNumber','storyToName','storyBookTitle','storyBookAuthor','storyText'].forEach(id=>document.getElementById(id).value='');renderStory();
  }).withFailureHandler(e=>{btn.disabled=false;btn.textContent=origText;onFail(e)}).saveStory(me.id,toGrade,toClass,toNumber,toName,bookTitle,bookAuthor,val('storyText'));
 }
+function editStory(recordId){
+ const x=(data.stories||[]).find(s=>String(s.recordId)===String(recordId));
+ if(!x){alert('수정할 기록을 찾을 수 없어요.');return;}
+ document.getElementById('storyToGrade').value=x.toGrade||'';
+ document.getElementById('storyToClass').value=x.toClass||'';
+ document.getElementById('storyToNumber').value=x.toNumber||'';
+ document.getElementById('storyToName').value=x.toName||'';
+ document.getElementById('storyBookTitle').value=x.title||'';
+ document.getElementById('storyBookAuthor').value=x.author||'';
+ document.getElementById('storyText').value=x.story||'';
+ editingStoryId=recordId;
+ const btn=document.querySelector('#story .btn');
+ btn.textContent='수정 내용 저장하기 ✏️';
+ btn.onclick=function(){saveEditedStory(recordId)};
+ show('story');
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+function saveEditedStory(recordId){
+ const toGrade=val('storyToGrade'),toClass=val('storyToClass'),toNumber=val('storyToNumber'),toName=val('storyToName');
+ const bookTitle=val('storyBookTitle'),bookAuthor=val('storyBookAuthor'),story=val('storyText');
+ if(!toGrade||!toClass||!toNumber||!toName){alert('받는 사람의 학년·반·번호·이름을 모두 입력해 주세요.');return}
+ if(!bookTitle||!bookAuthor){alert('선물하고 싶은 책 제목과 작가를 입력해 주세요.');return}
+ const btn=document.querySelector('#story .btn'); if(btn.disabled)return;
+ btn.disabled=true; btn.textContent='수정하는 중...';
+ google.script.run.withSuccessHandler(r=>{
+  btn.disabled=false;
+  if(!r||!r.ok){alert((r&&r.message)||'수정에 실패했어요.');btn.textContent='수정 내용 저장하기 ✏️';return}
+  data=r.dashboard;['storyToGrade','storyToClass','storyToNumber','storyToName','storyBookTitle','storyBookAuthor','storyText'].forEach(id=>document.getElementById(id).value='');
+  editingStoryId=null;btn.textContent='사연 신청하기 💌';btn.onclick=function(){saveStory()};
+  renderStory();alert('사연을 수정했어요! ✏️');
+ }).withFailureHandler(e=>{btn.disabled=false;btn.textContent='수정 내용 저장하기 ✏️';alert('수정 중 오류가 발생했어요.\n\n'+(e.message||e))}).updateStory(me.id,recordId,toGrade,toClass,toNumber,toName,bookTitle,bookAuthor,story);
+}
+function removeStory(recordId){
+ if(!confirm('이 사연 기록을 삭제할까요?\n\n책심도 다시 계산돼요.'))return;
+ google.script.run.withSuccessHandler(r=>{
+  if(!r||!r.ok){alert((r&&r.message)||'삭제에 실패했어요.');return}
+  data=r.dashboard;renderStory();renderHome();alert('사연 기록을 삭제했어요. 🗑️');
+ }).withFailureHandler(e=>alert('삭제 중 오류가 발생했어요.\n\n'+(e.message||e))).deleteStory(me.id,recordId);
+}
 function renderStory(){
  const s=data.activityStatus.story;document.getElementById('storyStatus').innerHTML=s.canSubmit?'이번 달 참여 기회가 남아 있어요. 💌':'이번 달 참여를 완료했어요. 다음 달에 다시 만나요!';
- document.querySelector('#story .btn').disabled=!s.canSubmit;
+ document.querySelector('#story .btn').disabled=editingStoryId?false:!s.canSubmit;
+ const list=document.getElementById('storyList');
+ if(list){
+  list.innerHTML=(data.stories||[]).length?data.stories.map(x=>`<div class="quote card">
+    <p>${esc(x.story)}</p><small>『${esc(x.title)}』 · ${esc(x.author)} → ${esc(x.toGrade)}학년 ${esc(x.toClass)}반 ${esc(x.toNumber)}번 ${esc(x.toName)}</small>
+    <div style="display:flex;gap:5px;margin-top:8px">
+      <button class="btn secondary" style="padding:7px 4px;font-size:11px;white-space:nowrap" onclick="editStory('${esc(x.recordId)}')">✏️수정</button>
+      <button class="btn" style="padding:7px 4px;font-size:11px;white-space:nowrap;background:#f3eeee;color:#9a5555" onclick="removeStory('${esc(x.recordId)}')">🗑️</button>
+    </div>
+   </div>`).join(''):'';
+ }
 }
 function renderRecs(){
  const theme=data.recommendationTheme;

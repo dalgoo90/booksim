@@ -9,7 +9,7 @@
    ⚠️ 앞으로 index.html을 수정할 때마다 아래 APP_VERSION 값과 version.json의 "v" 값을
    똑같이 새 값으로 바꿔줘야 이 기능이 작동해요. (둘 다 안 바꾸면 업데이트 감지가 안 돼요) */
 (function(){
-  var APP_VERSION = '2026-10-01-01';
+  var APP_VERSION = '2026-10-01-02';
   if (location.search.indexOf('v=') !== -1) return; // 이미 새 버전으로 넘어온 페이지면 재확인 안 함
   fetch('version.json?t=' + Date.now(), {cache:'no-store'})
     .then(function(r){ return r.json(); })
@@ -410,7 +410,7 @@ function showScreen(id){
  if(id==='books'&&data) renderBooks();
  if(id==='quote'&&data) renderQuotes();
  if(id==='recommend'&&data) renderRecs();
- if(id==='popularBooks'&&data) renderPopularBooks();
+ if(id==='popularBooks'&&data) renderPopularBooks('popularBooksList');
  if(id==='events'&&data) renderEvents();
  if(id==='story'&&data) renderStory();
  if(id==='addBook'&&me) renderMyLoans();
@@ -528,9 +528,12 @@ function renderHome(){
  </div>
  <div class="sectionhead"><h2>🎉 진행 중인 활동</h2><button class="link" onclick="show('events')">더보기</button></div>
  <div id="homeCurrentEvents"></div>
+ <div class="sectionhead"><h2>📚 독서기록 TOP 10</h2><button class="link" onclick="show('popularBooks')">더보기</button></div>
+ <div class="card"><div id="homePopularBooks"></div></div>
  <div class="sectionhead"><h2>🌳 우리 반 나무 숲</h2><button class="link" onclick="renderClassForest()">새로고침</button></div>
  <div id="classForest" class="forest-grid"><div class="card"><p class="desc">우리 반 친구들의 책나무를 불러오는 중이에요.</p></div></div>`;
  renderHomeCurrentEvents();
+ renderPopularBooks('homePopularBooks',5);
  checkWater();
  renderClassForest();
 }
@@ -824,10 +827,11 @@ function renderRecs(){
   return `<div class="card"><div class="row">${coverBox}<div><b>${esc(x.책제목)}</b><div class="author">${esc(x.작가)}</div><p style="font-size:12px;margin-top:10px">${esc(x.추천이유||'')}</p><span class="tag">👩‍🏫 ${esc(x.추천교사||'선생님')}</span><span class="tag">${esc(x.교과||'')}</span>${x.추천월?`<span class="tag">📅 ${esc(x.추천월)}</span>`:''}</div></div></div>`;
  }).join(''):'<div class="card">아직 등록된 추천도서가 없어요.</div>';
 }
-function renderPopularBooks(){
- const el=document.getElementById('popularBooksList');
+function renderPopularBooks(elId,limit){
+ const el=document.getElementById(elId||'popularBooksList');
  if(!el) return;
- const list=(data.popularBooks||[]).map(x=>({title:x.title,author:x.author,count:x.count,cover:x.cover}));
+ let list=(data.popularBooks||[]).map(x=>({title:x.title,author:x.author,count:x.count,cover:x.cover}));
+ if(limit) list=list.slice(0,limit);
  el.innerHTML=popularBooksHtml_(list);
 }
 function pizzaRowHtml_(c){

@@ -9,7 +9,7 @@
    ⚠️ 앞으로 index.html을 수정할 때마다 아래 APP_VERSION 값과 version.json의 "v" 값을
    똑같이 새 값으로 바꿔줘야 이 기능이 작동해요. (둘 다 안 바꾸면 업데이트 감지가 안 돼요) */
 (function(){
-  var APP_VERSION = '2026-10-01-02';
+  var APP_VERSION = '2026-10-10-02';
   if (location.search.indexOf('v=') !== -1) return; // 이미 새 버전으로 넘어온 페이지면 재확인 안 함
   fetch('version.json?t=' + Date.now(), {cache:'no-store'})
     .then(function(r){ return r.json(); })
@@ -169,7 +169,7 @@ input,textarea,select{width:100%;padding:13px;border:1px solid #dce4d9;border-ra
   <div class="card" style="background:#fff7e6;border:1px solid #f0d98c">
     <b style="font-size:13px;color:#7a5c00">✏️ 정확하게 기록해 주세요</b>
     <ul style="margin:8px 0 0;padding-left:18px;font-size:12px;color:#6b5a2e;line-height:1.7">
-      <li>시리즈물이면 <b>권수까지</b> 정확히 적어주세요. (예: "흔한남매"라면 "흔한남매 14"처럼 몇 권인지 알 수 있게)</li>
+      <li>시리즈물이면 <b>권수까지</b> 정확히 적어주세요. (예: "해리 포터"라면 "해리 포터 3"처럼 몇 권인지 알 수 있게)</li>
       <li>책 제목·작가 이름의 <b>띄어쓰기와 맞춤법</b>을 한 번 더 확인해 주세요.</li>
       <li>이 기록은 선생님이 <b>생활기록부</b>에 옮겨 적을 수도 있어요. 정확한 기록이 중요해요!</li>
     </ul>

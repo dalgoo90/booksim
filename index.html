@@ -9,7 +9,7 @@
    ⚠️ 앞으로 index.html을 수정할 때마다 아래 APP_VERSION 값과 version.json의 "v" 값을
    똑같이 새 값으로 바꿔줘야 이 기능이 작동해요. (둘 다 안 바꾸면 업데이트 감지가 안 돼요) */
 (function(){
-  var APP_VERSION = '2026-10-10-02';
+  var APP_VERSION = '2026-10-17-01';
   if (location.search.indexOf('v=') !== -1) return; // 이미 새 버전으로 넘어온 페이지면 재확인 안 함
   fetch('version.json?t=' + Date.now(), {cache:'no-store'})
     .then(function(r){ return r.json(); })
@@ -407,6 +407,7 @@ function showScreen(id){
  const map={home:'nHome',books:'nBooks',quote:'nQuote',story:'nQuote',activityHub:'nQuote',recommend:'nMore',popularBooks:'nMore',events:'nMore',moreHub:'nMore',stages:'nMore',faq:'nMore',addBook:'nBooks',setup:'nHome'};
  if(map[id]) document.getElementById(map[id]).classList.add('active');
  if(id==='home'&&data) renderHome();
+ if(id==='home'&&data) maybeShowGiftPopup_();
  if(id==='books'&&data) renderBooks();
  if(id==='quote'&&data) renderQuotes();
  if(id==='recommend'&&data) renderRecs();
@@ -507,6 +508,42 @@ function dismissAnnouncement(id){
  try{ localStorage.setItem('booksimDismissedAnnouncements', JSON.stringify(dismissed)); }catch(e){}
  const el=document.getElementById('noticeBanner'); if(el) el.remove();
 }
+function giftSeenList_(){
+ try{ return JSON.parse(localStorage.getItem('booksimGiftSeen')||'[]'); }catch(e){ return []; }
+}
+function giftCardHtml_(){
+ const list=(data&&data.gifts)||[];
+ return list.map(g=>`<div class="card" style="background:#fff7e6;border:1px solid #f0d98c"><div style="font-weight:800">🎁 깜짝 선물 대상이에요!</div><p class="desc" style="margin:5px 0 0">${esc(g.stage)} 단계에 <b>${esc(g.rank)}번째</b>로 도착했어요${g.arrivedAt?' ('+esc(g.arrivedAt)+')':''}. 선생님께 이 화면을 보여주세요.</p></div>`).join('');
+}
+function maybeShowGiftPopup_(){
+ if(!me||!data||document.getElementById('giftPopup')) return;
+ const seen=giftSeenList_();
+ const list=data.gifts||[];
+ const i=list.findIndex(g=>!seen.includes(me.id+'|'+g.stage));
+ if(i<0) return;
+ const g=list[i], img=stageImg_(g.stage);
+ const el=document.createElement('div');
+ el.id='giftPopup';
+ el.style.cssText='position:fixed;inset:0;z-index:999;background:rgba(40,50,42,.55);display:flex;align-items:center;justify-content:center;padding:24px';
+ el.innerHTML=`<div style="background:#fff;border-radius:22px;width:100%;max-width:340px;padding:22px 20px 18px;box-shadow:0 12px 40px #00000040;text-align:center">
+   ${img?`<img src="${esc(img)}" alt="${esc(g.stage)}" style="width:92px;height:92px;object-fit:contain" onerror="this.style.display='none'">`:'<div style="font-size:40px">🎁</div>'}
+   <div style="display:inline-block;background:#f6cf72;color:#5a4200;border-radius:100px;padding:3px 12px;font-size:12px;font-weight:800;margin:4px 0">🎁 깜짝 선물</div>
+   <h3 style="margin:6px 0 8px;font-size:17px;color:#344238">${esc(g.stage)}에 가장 먼저 도착했어요!</h3>
+   <p style="margin:0 0 16px;font-size:13.5px;line-height:1.65;color:#556158">정말 대단해요, ${esc(me.name)}님! 🎉<br>먼저 도착한 친구에게만 드리는 선물이 있어요.<br>어떤 선물일지는 비밀이에요 🤫<br>선생님을 찾아와서 이 화면을 보여주세요!</p>
+   <button class="btn" onclick="closeGiftPopup(${i})">확인</button>
+  </div>`;
+ document.body.appendChild(el);
+}
+function closeGiftPopup(i){
+ const g=((data&&data.gifts)||[])[i];
+ if(g&&me){
+  const seen=giftSeenList_(), k=me.id+'|'+g.stage;
+  if(!seen.includes(k)) seen.push(k);
+  try{ localStorage.setItem('booksimGiftSeen', JSON.stringify(seen)); }catch(e){}
+ }
+ const el=document.getElementById('giftPopup'); if(el) el.remove();
+ maybeShowGiftPopup_();
+}
 function renderHome(){
  const st=data.stage;
  document.getElementById('homeContent').innerHTML=`
@@ -519,6 +556,7 @@ function renderHome(){
    ${nextStageHint_(data.point)?`<div style="font-size:12px;color:#4c7c57;margin-top:2px">${esc(nextStageHint_(data.point))}</div>`:''}
    <div class="stats"><div class="stat"><b class="point">💗 ${data.point}</b><span>책심</span></div><div class="stat"><b>📚 ${data.bookCount}</b><span>읽은 책</span></div><div class="stat"><b>🌿 ${data.quoteCount}</b><span>채집 문장</span></div></div>
  </div>
+ ${giftCardHtml_()}
  <div class="card"><div style="font-weight:800">💧 오늘은 물을 줬나요?</div><p class="desc" id="waterMsg" style="margin:5px 0 10px">나무가 물을 기다리고 있어요!</p><button class="btn secondary" id="waterBtn" onclick="waterTree()">물 주기 💧</button></div>
  <div class="actions">
   <button class="action" onclick="show('books')">📚 독서 기록<small>읽은 책을 남겨요</small></button>
@@ -893,6 +931,11 @@ let _adminStudents=[];
 function studentRowsHtml_(list){
  return list.map(s=>`<tr><td>${s.grade}</td><td>${s.cls}</td><td>${s.num}</td><td>${esc(s.name)}</td><td>${s.books}</td><td>${s.point}</td><td>${esc(s.tree)}</td></tr>`).join('') || '<tr><td colspan="7" style="text-align:center;padding:16px">조건에 맞는 학생이 없어요.</td></tr>';
 }
+function giftWinnersHtml_(list){
+ if(!list.length) return '<p class="desc" style="margin:0">지금은 꺼져 있어요. 구글 시트의 <b>선물설정</b> 탭에서 <b>인원</b>을 1 이상으로 입력하면 켜져요. (단계명·필요책심·인원 / 바꾸면 1분 안에 반영돼요)</p>';
+ return list.map(g=>`<div style="margin-bottom:12px"><div style="font-weight:800;font-size:13.5px">${esc(g.stage)} <span style="color:var(--muted);font-weight:400">(책심 ${esc(g.need)}개 이상) · 선물 ${esc(g.count)}명 · 현재 도착 ${esc(g.reached)}명</span></div>
+  <div class="adminbox" style="margin-top:6px"><table><tr><th>순위</th><th>학년</th><th>반</th><th>번호</th><th>이름</th><th>도착 시각</th></tr>${g.winners.map(w=>`<tr><td>${esc(w.rank)}</td><td>${esc(w.grade)}</td><td>${esc(w.cls)}</td><td>${esc(w.num)}</td><td>${esc(w.name)}</td><td>${esc(w.arrivedAt||'-')}</td></tr>`).join('')||'<tr><td colspan="6" style="text-align:center;padding:12px">아직 도착한 학생이 없어요.</td></tr>'}</table></div></div>`).join('');
+}
 function popularBooksHtml_(list){
  if(!list.length) return '<p class="desc" style="text-align:center;padding:10px 0">아직 기록된 책이 없어요.</p>';
  const max=Math.max.apply(null,list.map(x=>x.count));
@@ -949,6 +992,7 @@ function renderAdmin(r){
  <p class="desc" style="margin:0 0 6px">표시된 학생: <span id="stuCount">${_adminStudents.length}</span>명</p>
  <div class="adminbox" style="max-height:440px;overflow:auto"><table><tr><th>학년</th><th>반</th><th>번호</th><th>이름</th><th>독서</th><th>책심</th><th>나무</th></tr><tbody id="stuTableBody">${studentRowsHtml_(_adminStudents)}</tbody></table></div></div>
  <div class="card"><h3>📊 많이 기록된 책 순위</h3><p class="desc" style="margin:0 0 10px">장르 정보는 따로 입력받지 않아서, 애들이 독서기록에 가장 많이 남긴 책 순서로 보여드려요.</p>${popularBooksHtml_(r.popularBooks||[])}</div>
+ <div class="card"><h3>🎁 단계 도달 선물</h3>${giftWinnersHtml_(r.giftWinners||[])}</div>
  <div class="card"><h3>🌟 이달의 추천 책 등록</h3><div class="field" style="overflow:hidden"><label>추천월</label><input id="rmonth" type="month" style="max-width:100%;font-size:14px;padding:11px"></div><div class="field"><label>책 제목</label><input id="rt"></div><div class="field"><label>작가</label><input id="ra"></div><div class="field"><label>ISBN</label><input id="ri"></div><div class="field"><label>표지 URL (선택)</label><input id="rc"></div><div class="row"><input id="rteacher" placeholder="추천교사"><input id="rsubject" placeholder="교과"></div><div class="field"><textarea id="rreason" placeholder="추천 이유"></textarea></div><button class="btn" onclick="saveRec()">추천도서 게시</button></div>
  <div class="card"><h3>🎉 행사 관리</h3><input id="eventId" type="hidden"><p class="desc" style="margin:0 0 8px">시작일·종료일을 비워두면 '일정 미정'으로 표시돼요.</p><div class="field" style="overflow:hidden"><label>시작일 (선택)</label><input id="eventStart" type="date" style="max-width:100%;font-size:14px;padding:11px"></div><div class="field" style="overflow:hidden"><label>종료일 (선택)</label><input id="eventEnd" type="date" style="max-width:100%;font-size:14px;padding:11px"></div><div class="row"><input id="eventIcon" placeholder="아이콘 예: 🍕"><input id="eventVisible" placeholder="게시 또는 숨김" value="게시"></div><div class="field"><input id="eventTitle" placeholder="행사 제목"></div><div class="field"><textarea id="eventDesc" placeholder="행사 설명"></textarea></div><div class="row"><input id="eventButton" placeholder="버튼 문구"><input id="eventLink" placeholder="링크 (선택)"></div>
  <div class="row"><div class="field"><label>종류</label><select id="eventType" onchange="onEventTypeChange()"><option value="일반">일반 행사</option><option value="피자챌린지">반별 독서 피자 챌린지</option></select></div><div class="field" id="eventMaxField" style="display:none"><label>1인당 최대 반영 권수</label><input id="eventMax" type="number" min="1" value="10"></div></div>
